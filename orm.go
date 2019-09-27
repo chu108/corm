@@ -68,6 +68,46 @@ func (db *db) WhereRaw(where string) *db {
 }
 
 /**
+查询 In 条件，格式：WhereIn("name", "张")
+where 条件字符串
+*/
+func (db *db) WhereIn(field string, condition interface{}) {
+
+}
+
+/**
+查询 Not In 条件，格式：WhereNotIn("name", "张")
+where 条件字符串
+*/
+func (db *db) WhereNotIn(field string, condition interface{}) {
+
+}
+
+/**
+查询 like 条件，格式：WhereLike("name", "张")
+where 条件字符串
+*/
+func (db *db) WhereLike(field string, condition interface{}) {
+
+}
+
+/**
+查询 not like 条件，格式：WhereNotLike("name", "张")
+where 条件字符串
+*/
+func (db *db) WhereNotLike(field string, condition interface{}) {
+
+}
+
+/**
+查询 Between 条件，格式：WhereBetween("id", 100, 1000)
+where 条件字符串
+*/
+func (db *db) WhereBetween(field string, startCondition interface{}, endCondition interface{}) {
+
+}
+
+/**
 排序，格式：OrderBy("id", "desc").OrderBy("name", "asc")
 field 字段
 by asc或desc
