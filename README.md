@@ -4,7 +4,7 @@
 # 使用方法
 
 ### 示例模型
-```go
+```
     type project struct {
 		id int64
 		name string
@@ -12,7 +12,7 @@
 ```
 
 ### 获取一条数据
-```go
+```
     
 	project := &project{}
 	//MasterDB 初始化好的数据库连接
@@ -25,7 +25,7 @@
 
 
 ### 获取多条数据
-```go
+```
 
 	project := make([]*project, 0, 10)
 	//MasterDB 初始化好的数据库连接
@@ -42,7 +42,7 @@
 ```
 
 ### 条件组合
-```go
+```
     //多条件
     err = fake_orm.GetDb(MasterDB).Tab("project")
             .Select("id", "name")
