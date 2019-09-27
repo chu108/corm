@@ -108,6 +108,14 @@ func (db *db) WhereBetween(field string, startCondition interface{}, endConditio
 }
 
 /**
+查询结果过滤 Having ，格式：Having("name", "=", "张三").Having("age", ">", 18)
+Having 条件字符串
+*/
+func (db *db) Having(field, operator string, condition interface{}) {
+
+}
+
+/**
 排序，格式：OrderBy("id", "desc").OrderBy("name", "asc")
 field 字段
 by asc或desc
@@ -118,6 +126,15 @@ func (db *db) OrderBy(field, by string) *db {
 		by:    by,
 	})
 	return db
+}
+
+/**
+分组，格式：GroupBy("class", "type")
+field 字段
+by asc或desc
+*/
+func (db *db) GroupBy(field ...string) {
+
 }
 
 /**
@@ -208,6 +225,27 @@ func (db *db) Get(callable func(rows *sql.Rows)) error {
 		callable(rows)
 	}
 	return nil
+}
+
+/**
+Sum
+*/
+func (db *db) Sum() {
+
+}
+
+/**
+Count
+*/
+func (db *db) Count() {
+
+}
+
+/**
+Exists 查询数据是否存在
+*/
+func (db *db) Exists() {
+
 }
 
 /**
