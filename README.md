@@ -29,7 +29,6 @@
 
 	project := make([]*project, 0, 10)
 	//MasterDB 初始化好的数据库连接
-	project := make([]*raisefund, 0, 10)
     err = fake_orm.GetDb(MasterDB).Tab("project").Select("id","name").Where("id", ">", 30287016).OrderBy("id", "desc").Get(func(rows *sql.Rows) {
         obj := new(project)
         _ = rows.Scan(&obj.id, &obj.name)
