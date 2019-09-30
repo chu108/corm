@@ -24,17 +24,6 @@ func (db *db) addDelete() string {
 	return DELETE
 }
 
-func (db *db) addSum() string {
-	if len(db.sum) > 0 {
-		sumTmp := make([]string, 0, 2)
-		for _, s := range db.sum {
-			sumTmp = append(sumTmp, fmt.Sprintf("SUM(%s)", s))
-		}
-		return strings.Join(sumTmp, ", ")
-	}
-	return ""
-}
-
 /**
 添加字段
 */
@@ -134,16 +123,29 @@ func (db *db) addFrom() string {
 	return FROM
 }
 
+func (db *db) addSum() string {
+	if db.sum == "" {
+		return ""
+	}
+	return fmt.Sprintf("SUM(%s) AS sum", db.sum)
+}
+
 func (db *db) addMax() string {
-	return fmt.Sprintf("MAX(%s)", db.max)
+	if db.max == "" {
+		return ""
+	}
+	return fmt.Sprintf("MAX(%s) AS max", db.max)
 }
 
 func (db *db) addMin() string {
-	return fmt.Sprintf("MIN(%s)", db.min)
+	if db.min == "" {
+		return ""
+	}
+	return fmt.Sprintf("MIN(%s) AS min", db.min)
 }
 
 func (db *db) addCount() string {
-	return "COUNT(*)"
+	return "COUNT(*) AS count"
 }
 
 /**
