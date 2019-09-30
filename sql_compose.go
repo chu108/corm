@@ -13,15 +13,26 @@ func sqlCompose(sql ...string) string {
 }
 
 func (db *db) addSelect() string {
-	return "SELECT"
+	return SELECT
 }
 
 func (db *db) addUpdate() string {
-	return "UPDATE"
+	return UPDATE
 }
 
 func (db *db) addDelete() string {
-	return "DELETE"
+	return DELETE
+}
+
+func (db *db) addSum() string {
+	if len(db.sum) > 0 {
+		sumTmp := make([]string, 0, 2)
+		for _, s := range db.sum {
+			sumTmp = append(sumTmp, fmt.Sprintf("SUM(%s)", s))
+		}
+		return strings.Join(sumTmp, ", ")
+	}
+	return ""
 }
 
 /**
@@ -47,7 +58,7 @@ func (db *db) addJoin() (sqlStr string) {
 	if len(db.join) > 0 {
 		join := make([]string, 0, 2)
 		for _, j := range db.join {
-			join = append(join, fmt.Sprintf("%s %s ON %s", j.direction, j.table, j.on))
+			join = append(join, fmt.Sprintf("%s %s %s %s", j.direction, j.table, ON, j.on))
 		}
 		sqlStr = strings.Join(join, " ")
 	}
@@ -62,7 +73,16 @@ func (db *db) addWhere() string {
 		sqlTmp := make([]string, 0, 5)
 		if len(db.where) > 0 {
 			for _, w := range db.where {
-				sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s %s", w.field, w.operator, "?"))
+				switch w.operator {
+				case IN, NOT_IN:
+					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s(%s)", w.field, w.operator, arrayToStrPlace(w.conditionArray)))
+				case LIKE, NOT_LIKE:
+					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s '%%s%'", w.field, w.operator, w.condition))
+				case BETWEEN:
+					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s %s AND %s", w.field, w.operator, "?", "?"))
+				default:
+					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s %s", w.field, w.operator, "?"))
+				}
 			}
 		}
 		if len(db.whereRaw) > 0 {
@@ -71,7 +91,7 @@ func (db *db) addWhere() string {
 			}
 		}
 
-		return "WHERE " + strings.Join(sqlTmp, " AND ")
+		return fmt.Sprintf("%s %s", WHERE, strings.Join(sqlTmp, fmt.Sprintf(" %s ", AND)))
 	}
 	return ""
 }
@@ -85,7 +105,7 @@ func (db *db) addOrderBy() string {
 		for _, o := range db.orderBy {
 			order = append(order, fmt.Sprintf("%s %s", o.field, o.by))
 		}
-		return "ORDER BY " + strings.Join(order, ",")
+		return fmt.Sprintf("%s %s", ORDER_BY, strings.Join(order, ","))
 	}
 	return ""
 }
@@ -95,7 +115,7 @@ func (db *db) addOrderBy() string {
 */
 func (db *db) addLimit() string {
 	if db.limit > 0 {
-		return fmt.Sprintf("LIMIT %d", db.limit)
+		return fmt.Sprintf("%s %d", LIMIT, db.limit)
 	}
 	return ""
 }
@@ -111,7 +131,19 @@ func (db *db) addTable() string {
 添加form
 */
 func (db *db) addFrom() string {
-	return "FROM"
+	return FROM
+}
+
+func (db *db) addMax() string {
+	return fmt.Sprintf("MAX(%s)", db.max)
+}
+
+func (db *db) addMin() string {
+	return fmt.Sprintf("MIN(%s)", db.min)
+}
+
+func (db *db) addCount() string {
+	return "COUNT(*)"
 }
 
 /**
@@ -128,6 +160,66 @@ func (db *db) whereToSql() string {
 		db.addOrderBy(),
 		db.addLimit(),
 	)
+	return retSql(sqlStr)
+}
+
+func (db *db) countToSql() string {
+	sqlStr := sqlCompose(
+		db.addSelect(),
+		db.addCount(),
+		db.addFrom(),
+		db.addTable(),
+		db.addJoin(),
+		db.addWhere(),
+		db.addOrderBy(),
+		db.addLimit(),
+	)
+	return retSql(sqlStr)
+}
+
+func (db *db) sumToSql() string {
+	sqlStr := sqlCompose(
+		db.addSelect(),
+		db.addSum(),
+		db.addFrom(),
+		db.addTable(),
+		db.addJoin(),
+		db.addWhere(),
+		db.addOrderBy(),
+		db.addLimit(),
+	)
+	return retSql(sqlStr)
+}
+
+func (db *db) maxToSql() string {
+	sqlStr := sqlCompose(
+		db.addSelect(),
+		db.addMax(),
+		db.addFrom(),
+		db.addTable(),
+		db.addJoin(),
+		db.addWhere(),
+		db.addOrderBy(),
+		db.addLimit(),
+	)
+	return retSql(sqlStr)
+}
+
+func (db *db) minToSql() string {
+	sqlStr := sqlCompose(
+		db.addSelect(),
+		db.addMin(),
+		db.addFrom(),
+		db.addTable(),
+		db.addJoin(),
+		db.addWhere(),
+		db.addOrderBy(),
+		db.addLimit(),
+	)
+	return retSql(sqlStr)
+}
+
+func retSql(sqlStr string) string {
 	fmt.Println(sqlStr)
 	return sqlStr
 }
@@ -138,4 +230,12 @@ func (db *db) whereToSql() string {
 func (db *db) whereToSqlForLimit(count int64) string {
 	db.limit = count
 	return db.whereToSql()
+}
+
+func arrayToStrPlace(arr []interface{}) string {
+	strTmp := make([]string, 0, 5)
+	for i := 0; i < len(arr); {
+		strTmp = append(strTmp, "?")
+	}
+	return strings.Join(strTmp, ",")
 }

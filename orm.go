@@ -71,48 +71,78 @@ func (db *db) WhereRaw(where string) *db {
 查询 In 条件，格式：WhereIn("name", "张")
 where 条件字符串
 */
-func (db *db) WhereIn(field string, condition interface{}) {
-
+func (db *db) WhereIn(field string, condition ...interface{}) *db {
+	db.where = append(db.where, where{
+		field:          field,
+		operator:       IN,
+		conditionArray: condition,
+	})
+	return db
 }
 
 /**
 查询 Not In 条件，格式：WhereNotIn("name", "张")
 where 条件字符串
 */
-func (db *db) WhereNotIn(field string, condition interface{}) {
-
+func (db *db) WhereNotIn(field string, condition ...interface{}) *db {
+	db.where = append(db.where, where{
+		field:          field,
+		operator:       NOT_IN,
+		conditionArray: condition,
+	})
+	return db
 }
 
 /**
 查询 like 条件，格式：WhereLike("name", "张")
 where 条件字符串
 */
-func (db *db) WhereLike(field string, condition interface{}) {
-
+func (db *db) WhereLike(field string, condition interface{}) *db {
+	db.where = append(db.where, where{
+		field:     field,
+		operator:  LIKE,
+		condition: condition,
+	})
+	return db
 }
 
 /**
 查询 not like 条件，格式：WhereNotLike("name", "张")
 where 条件字符串
 */
-func (db *db) WhereNotLike(field string, condition interface{}) {
-
+func (db *db) WhereNotLike(field string, condition interface{}) *db {
+	db.where = append(db.where, where{
+		field:     field,
+		operator:  NOT_LIKE,
+		condition: condition,
+	})
+	return db
 }
 
 /**
 查询 Between 条件，格式：WhereBetween("id", 100, 1000)
 where 条件字符串
 */
-func (db *db) WhereBetween(field string, startCondition interface{}, endCondition interface{}) {
-
+func (db *db) WhereBetween(field string, startCondition interface{}, endCondition interface{}) *db {
+	db.where = append(db.where, where{
+		field:          field,
+		operator:       BETWEEN,
+		conditionArray: []interface{}{startCondition, endCondition},
+	})
+	return db
 }
 
 /**
 查询结果过滤 Having ，格式：Having("name", "=", "张三").Having("age", ">", 18)
 Having 条件字符串
 */
-func (db *db) Having(field, operator string, condition interface{}) {
-
+func (db *db) Having(field, operator string, condition interface{}) *db {
+	db.having = append(db.having, having{
+		field:     field,
+		operator:  operator,
+		condition: condition,
+	})
+	return db
 }
 
 /**
@@ -133,8 +163,9 @@ func (db *db) OrderBy(field, by string) *db {
 field 字段
 by asc或desc
 */
-func (db *db) GroupBy(field ...string) {
-
+func (db *db) GroupBy(field ...string) *db {
+	db.groupBy = append(db.groupBy, field...)
+	return db
 }
 
 /**
@@ -154,7 +185,7 @@ on 关联条件
 func (db *db) LeftJoin(table, on string) *db {
 	db.join = append(db.join, join{
 		table:     table,
-		direction: "LEFT JOIN",
+		direction: LEFT_JOIN,
 		on:        on,
 	})
 	return db
@@ -168,7 +199,7 @@ on 关联条件
 func (db *db) RightJoin(table, on string) *db {
 	db.join = append(db.join, join{
 		table:     table,
-		direction: "RIGHT JOIN",
+		direction: RIGHT_JOIN,
 		on:        on,
 	})
 	return db
@@ -182,7 +213,7 @@ on 关联条件
 func (db *db) Join(table, on string) *db {
 	db.join = append(db.join, join{
 		table:     table,
-		direction: "INNER JOIN",
+		direction: INNER_JOIN,
 		on:        on,
 	})
 	return db
@@ -230,22 +261,90 @@ func (db *db) Get(callable func(rows *sql.Rows)) error {
 /**
 Sum
 */
-func (db *db) Sum() {
+func (db *db) Sum(sumField string) (int64, error) {
+	db.sum = sumField
+	var sum int64
+	where := make([]interface{}, 0, 5)
+	if len(db.where) > 0 {
+		for _, w := range db.where {
+			where = append(where, w.condition)
+		}
+	}
+	err := db.conn.QueryRow(db.sumToSql(), where...).Scan(sum)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+	return sum, nil
+}
 
+/**
+Sum
+*/
+func (db *db) Max(maxField string) (int64, error) {
+	db.max = maxField
+	var max int64
+	where := make([]interface{}, 0, 5)
+	if len(db.where) > 0 {
+		for _, w := range db.where {
+			where = append(where, w.condition)
+		}
+	}
+	err := db.conn.QueryRow(db.sumToSql(), where...).Scan(max)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+	return max, nil
+}
+
+/**
+Sum
+*/
+func (db *db) Min(minField string) (int64, error) {
+	db.min = minField
+	var min int64
+	where := make([]interface{}, 0, 5)
+	if len(db.where) > 0 {
+		for _, w := range db.where {
+			where = append(where, w.condition)
+		}
+	}
+	err := db.conn.QueryRow(db.sumToSql(), where...).Scan(min)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+	return min, nil
 }
 
 /**
 Count
 */
-func (db *db) Count() {
-
+func (db *db) Count() (int64, error) {
+	var count int64
+	where := make([]interface{}, 0, 5)
+	if len(db.where) > 0 {
+		for _, w := range db.where {
+			where = append(where, w.condition)
+		}
+	}
+	err := db.conn.QueryRow(db.sumToSql(), where...).Scan(count)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+	return count, nil
 }
 
 /**
 Exists 查询数据是否存在
 */
-func (db *db) Exists() {
-
+func (db *db) Exists() bool {
+	count, err := db.Count()
+	if err != nil {
+		panic(err)
+	}
+	if count > 0 {
+		return true
+	}
+	return false
 }
 
 /**
