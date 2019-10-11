@@ -1,6 +1,7 @@
 package fake_orm
 
 const (
+	INSERT     = "INSERT INTO"
 	SELECT     = "SELECT"
 	UPDATE     = "UPDATE"
 	DELETE     = "DELETE"
@@ -19,4 +20,5 @@ const (
 	LIMIT      = "LIMIT"
 	HAVING     = "HAVING"
 	BETWEEN    = "BETWEEN"
+	SET        = "SET"
 )

@@ -41,4 +41,6 @@ type db struct {
 	count    string
 	max      string
 	min      string
+	insert   map[string]interface{}
+	update   map[string]interface{}
 }

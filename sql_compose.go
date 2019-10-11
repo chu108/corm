@@ -24,6 +24,10 @@ func (db *db) addDelete() string {
 	return DELETE
 }
 
+func (db *db) addInsert() string {
+	return INSERT
+}
+
 /**
 添加字段
 */
@@ -123,6 +127,13 @@ func (db *db) addFrom() string {
 	return FROM
 }
 
+/**
+添加SET
+*/
+func (db *db) addSet() string {
+	return SET
+}
+
 func (db *db) addSum() string {
 	if db.sum == "" {
 		return ""
@@ -220,6 +231,54 @@ func (db *db) minToSql() string {
 	)
 	return retSql(sqlStr)
 }
+
+func (db *db) insertToStrAndArr() (string, []interface{}) {
+	var keys []string
+	var vals []interface{}
+
+	keys = append(keys, "VALUES(")
+	for k, v := range db.insert {
+		keys = append(keys, k)
+		vals = append(vals, v)
+	}
+	insertStr := strings.Join(keys, ", ") + ")"
+
+	return insertStr, vals
+}
+
+func (db *db) updateToStrAndArr() (string, []interface{}) {
+	var keys []string
+	var vals []interface{}
+
+	keys = append(keys, "VALUES(")
+	for k, v := range db.insert {
+		keys = append(keys, fmt.Sprintf("%s = ?", k))
+		vals = append(vals, v)
+	}
+
+	return strings.Join(keys, ", "), vals
+}
+
+//func (db *db) insertToSql() string {
+//
+//	insertStr, vals := db.updateToStrAndArr()
+//
+//	sqlStr := sqlCompose(
+//		db.addInsert(),
+//		db.addTable(),
+//		insertStr,
+//		db.addTable(),
+//		db.addJoin(),
+//		db.addWhere(),
+//		db.addOrderBy(),
+//		db.addLimit(),
+//	)
+//	return retSql(sqlStr)
+//}
+//
+//func (db *db) updateToSql() string {
+//
+//}
 
 func retSql(sqlStr string) string {
 	fmt.Println(sqlStr)

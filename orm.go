@@ -353,3 +353,17 @@ func (db *db) Exists() bool {
 func (db *db) PrintSql() string {
 	return db.whereToSql()
 }
+
+/**
+插入数据
+*/
+func (db *db) Insert(insertMap map[string]interface{}) error {
+	db.insert = insertMap
+}
+
+/**
+修改数据
+*/
+func (db *db) Update(updateMap map[string]interface{}) error {
+	db.update = updateMap
+}
