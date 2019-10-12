@@ -27,20 +27,21 @@ type orderBy struct {
 }
 
 type db struct {
-	conn     *sql.DB
-	table    string
-	join     []join
-	fields   []string
-	where    []where
-	whereRaw []string
-	orderBy  []orderBy
-	groupBy  []string
-	limit    int64
-	having   []having
-	sum      string
-	count    string
-	max      string
-	min      string
-	insert   map[string]interface{}
-	update   map[string]interface{}
+	conn      *sql.DB
+	table     string
+	join      []join
+	fields    []string
+	where     []where
+	whereRaw  []string
+	orderBy   []orderBy
+	groupBy   []string
+	limit     int64
+	having    []having
+	sum       string
+	count     string
+	max       string
+	min       string
+	insert    map[string]interface{}
+	update    map[string]interface{}
+	chunkById int64
 }
