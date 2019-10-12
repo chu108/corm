@@ -234,14 +234,18 @@ func (db *db) minToSql() string {
 
 func (db *db) insertToStrAndArr() (string, []interface{}) {
 	var keys []string
+	var keyVals []string
 	var vals []interface{}
 
-	keys = append(keys, "VALUES(")
 	for k, v := range db.insert {
 		keys = append(keys, k)
+		keyVals = append(keyVals, "?")
 		vals = append(vals, v)
 	}
-	insertStr := strings.Join(keys, ", ") + ")"
+
+	keysToStr := db.addTable() + "(" + strings.Join(keys, ", ") + ")"
+	keyValsToStr := " VALUES(" + strings.Join(keyVals, ", ") + ")"
+	insertStr := keysToStr + keyValsToStr
 
 	return insertStr, vals
 }
@@ -250,8 +254,7 @@ func (db *db) updateToStrAndArr() (string, []interface{}) {
 	var keys []string
 	var vals []interface{}
 
-	keys = append(keys, "VALUES(")
-	for k, v := range db.insert {
+	for k, v := range db.update {
 		keys = append(keys, fmt.Sprintf("%s = ?", k))
 		vals = append(vals, v)
 	}
@@ -259,26 +262,29 @@ func (db *db) updateToStrAndArr() (string, []interface{}) {
 	return strings.Join(keys, ", "), vals
 }
 
-//func (db *db) insertToSql() string {
-//
-//	insertStr, vals := db.updateToStrAndArr()
-//
-//	sqlStr := sqlCompose(
-//		db.addInsert(),
-//		db.addTable(),
-//		insertStr,
-//		db.addTable(),
-//		db.addJoin(),
-//		db.addWhere(),
-//		db.addOrderBy(),
-//		db.addLimit(),
-//	)
-//	return retSql(sqlStr)
-//}
-//
-//func (db *db) updateToSql() string {
-//
-//}
+func (db *db) insertToSql() (sql string, arr []interface{}) {
+
+	insertStr, vals := db.insertToStrAndArr()
+
+	sqlStr := sqlCompose(
+		db.addInsert(),
+		insertStr,
+	)
+	return retSql(sqlStr), vals
+}
+
+func (db *db) updateToSql() (sql string, arr []interface{}) {
+	updateStr, vals := db.updateToStrAndArr()
+
+	sqlStr := sqlCompose(
+		db.addUpdate(),
+		db.addTable(),
+		db.addSet(),
+		updateStr,
+		db.addWhere(),
+	)
+	return retSql(sqlStr), vals
+}
 
 func retSql(sqlStr string) string {
 	fmt.Println(sqlStr)
@@ -295,7 +301,7 @@ func (db *db) whereToSqlForLimit(count int64) string {
 
 func arrayToStrPlace(arr []interface{}) string {
 	strTmp := make([]string, 0, 5)
-	for i := 0; i < len(arr); {
+	for i := 0; i < len(arr); i++ {
 		strTmp = append(strTmp, "?")
 	}
 	return strings.Join(strTmp, ",")

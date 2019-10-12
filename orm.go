@@ -357,13 +357,56 @@ func (db *db) PrintSql() string {
 /**
 插入数据
 */
-func (db *db) Insert(insertMap map[string]interface{}) error {
+func (db *db) Insert(insertMap map[string]interface{}) (LastInsertId int64, err error) {
 	db.insert = insertMap
+	insertStr, vals := db.insertToSql()
+
+	stmt, err := db.conn.Prepare(insertStr)
+	if err != nil {
+		return 0, err
+	}
+	rest, err := stmt.Exec(vals...)
+	if err != nil {
+		return 0, err
+	}
+	insertId, err := rest.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return insertId, nil
 }
 
 /**
 修改数据
 */
-func (db *db) Update(updateMap map[string]interface{}) error {
+func (db *db) Update(updateMap map[string]interface{}) (LastInsertId int64, err error) {
 	db.update = updateMap
+	updateStr, vals := db.updateToSql()
+
+	where := make([]interface{}, 0, 5)
+	if len(db.where) > 0 {
+		for _, w := range db.where {
+			if len(w.conditionArray) > 0 {
+				where = append(where, w.conditionArray...)
+			}
+			if w.condition != nil {
+				where = append(where, w.condition)
+			}
+		}
+	}
+	vals = append(vals, where...)
+
+	stmt, err := db.conn.Prepare(updateStr)
+	if err != nil {
+		return 0, err
+	}
+	rest, err := stmt.Exec(vals...)
+	if err != nil {
+		return 0, err
+	}
+	rows, err := rest.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return rows, nil
 }
