@@ -365,6 +365,7 @@ func (db *db) Insert(insertMap map[string]interface{}) (LastInsertId int64, err 
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Close()
 	rest, err := stmt.Exec(vals...)
 	if err != nil {
 		return 0, err
@@ -400,6 +401,7 @@ func (db *db) Update(updateMap map[string]interface{}) (LastInsertId int64, err 
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Close()
 	rest, err := stmt.Exec(vals...)
 	if err != nil {
 		return 0, err
