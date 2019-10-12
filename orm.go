@@ -252,6 +252,8 @@ func (db *db) Get(callable func(rows *sql.Rows)) error {
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		callable(rows)
 	}
@@ -366,6 +368,7 @@ func (db *db) Insert(insertMap map[string]interface{}) (LastInsertId int64, err 
 		return 0, err
 	}
 	defer stmt.Close()
+
 	rest, err := stmt.Exec(vals...)
 	if err != nil {
 		return 0, err
@@ -402,6 +405,7 @@ func (db *db) Update(updateMap map[string]interface{}) (LastInsertId int64, err 
 		return 0, err
 	}
 	defer stmt.Close()
+
 	rest, err := stmt.Exec(vals...)
 	if err != nil {
 		return 0, err
