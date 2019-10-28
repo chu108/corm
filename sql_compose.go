@@ -107,7 +107,7 @@ func (db *db) addWhere() string {
 				case IN, NOT_IN:
 					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s(%s)", w.field, w.operator, arrayToStrPlace(w.conditionArray)))
 				case LIKE, NOT_LIKE:
-					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s '%%s%'", w.field, w.operator, w.condition))
+					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s '%%%s%%'", w.field, w.operator, w.condition))
 				case BETWEEN:
 					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s %s AND %s", w.field, w.operator, "?", "?"))
 				default:
