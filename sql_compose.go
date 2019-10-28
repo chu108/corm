@@ -28,6 +28,43 @@ func (db *db) addInsert() string {
 	return INSERT
 }
 
+func (db *db) addTable() string {
+	return db.table
+}
+
+func (db *db) addFrom() string {
+	return FROM
+}
+
+func (db *db) addSet() string {
+	return SET
+}
+
+func (db *db) addSum() string {
+	if db.sum == "" {
+		return ""
+	}
+	return fmt.Sprintf("SUM(%s) AS sum", db.sum)
+}
+
+func (db *db) addMax() string {
+	if db.max == "" {
+		return ""
+	}
+	return fmt.Sprintf("MAX(%s) AS max", db.max)
+}
+
+func (db *db) addMin() string {
+	if db.min == "" {
+		return ""
+	}
+	return fmt.Sprintf("MIN(%s) AS min", db.min)
+}
+
+func (db *db) addCount() string {
+	return "COUNT(*) AS count"
+}
+
 /**
 添加字段
 */
@@ -111,52 +148,6 @@ func (db *db) addLimit() string {
 		return fmt.Sprintf("%s %d", LIMIT, db.limit)
 	}
 	return ""
-}
-
-/**
-添加数据表
-*/
-func (db *db) addTable() string {
-	return db.table
-}
-
-/**
-添加form
-*/
-func (db *db) addFrom() string {
-	return FROM
-}
-
-/**
-添加SET
-*/
-func (db *db) addSet() string {
-	return SET
-}
-
-func (db *db) addSum() string {
-	if db.sum == "" {
-		return ""
-	}
-	return fmt.Sprintf("SUM(%s) AS sum", db.sum)
-}
-
-func (db *db) addMax() string {
-	if db.max == "" {
-		return ""
-	}
-	return fmt.Sprintf("MAX(%s) AS max", db.max)
-}
-
-func (db *db) addMin() string {
-	if db.min == "" {
-		return ""
-	}
-	return fmt.Sprintf("MIN(%s) AS min", db.min)
-}
-
-func (db *db) addCount() string {
-	return "COUNT(*) AS count"
 }
 
 /**

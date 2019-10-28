@@ -383,7 +383,7 @@ func (db *db) Insert(insertMap map[string]interface{}) (LastInsertId int64, err 
 /**
 修改数据
 */
-func (db *db) Update(updateMap map[string]interface{}) (LastInsertId int64, err error) {
+func (db *db) Update(updateMap map[string]interface{}) (updateNum int64, err error) {
 	db.update = updateMap
 	updateStr, vals := db.updateToSql()
 
