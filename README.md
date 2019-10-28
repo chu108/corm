@@ -91,7 +91,6 @@ insertId, err := fake_orm.GetDb(__MasterDB).Tab("users").Insert(map[string]inter
     "nickname":"aaaaaaa",
     "name":"aaaaaaa",
     "phone":1231231234,
-    "is_actived":"1",
 })
 if err != nil {
     panic(err)
@@ -106,7 +105,6 @@ num, err := fake_orm.GetDb(__MasterDB).Tab("users").Where("name", "=", "aaaaaaa"
     "nickname":   "eeeeeeeeeee",
     "name":       "eeeeeeeeeee",
     "phone":      "eeeeeeeeeee",
-    "is_actived": 0,
 })
 if err != nil {
     panic(err)
