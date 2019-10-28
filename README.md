@@ -28,9 +28,9 @@ fmt.Println(project)
 ```
 
 //返回Slicp类型数据
-project := make([]*raisefund, 0, 10)
-err = fake_orm.GetDb(__MasterDB).Tab("raisefunds").Select("id","name").Where("id", ">", 30287016).OrderBy("id", "desc").Get(func(rows *sql.Rows) {
-    obj := new(raisefund)
+project := make([]*project, 0, 10)
+err = fake_orm.GetDb(__MasterDB).Tab("project").Select("id","name").Where("id", ">", 30287016).OrderBy("id", "desc").Get(func(rows *sql.Rows) {
+    obj := new(project)
     _ = rows.Scan(&obj.id, &obj.name)
     project = append(project, obj)
 })
@@ -39,9 +39,9 @@ for k, v := range project {
 }
 
 //返回Map类型数据
-project := make(map[int64]*raisefund)
-err = fake_orm.GetDb(__MasterDB).Tab("raisefunds").Select("id","name").Where("id", ">", 30287016).OrderBy("id", "desc").Get(func(rows *sql.Rows) {
-    obj := new(raisefund)
+project := make(map[int64]*project)
+err = fake_orm.GetDb(__MasterDB).Tab("project").Select("id","name").Where("id", ">", 30287016).OrderBy("id", "desc").Get(func(rows *sql.Rows) {
+    obj := new(project)
     _ = rows.Scan(&obj.id, &obj.name)
     project[obj.id] = obj
 })
@@ -87,7 +87,7 @@ err = fake_orm.GetDb(MasterDB).Tab("users as u").join("group as g","u.group_id =
 
 ### 插入记录
 ```go
-insertId, err := fake_orm.GetDb(__MasterDB).Tab("admin_users").Insert(map[string]interface{}{
+insertId, err := fake_orm.GetDb(__MasterDB).Tab("users").Insert(map[string]interface{}{
     "nickname":"aaaaaaa",
     "name":"aaaaaaa",
     "phone":1231231234,
@@ -102,7 +102,7 @@ fmt.Println(insertId)
 
 ### 修改数据
 ```go
-num, err := fake_orm.GetDb(__MasterDB).Tab("admin_users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Update(map[string]interface{}{
+num, err := fake_orm.GetDb(__MasterDB).Tab("users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Update(map[string]interface{}{
     "nickname":   "eeeeeeeeeee",
     "name":       "eeeeeeeeeee",
     "phone":      "eeeeeeeeeee",
@@ -118,28 +118,28 @@ fmt.Println(num)
 ### 统计查询
 ```go
 //Count
-countNum, err := fake_orm.GetDb(__MasterDB).Tab("admin_users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Count()
+countNum, err := fake_orm.GetDb(__MasterDB).Tab("users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Count()
 if err != nil {
     panic(err)
 }
 fmt.Println(countNum)
 
 //Sum
-sumNum, err := fake_orm.GetDb(__MasterDB).Tab("admin_users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Sum("money")
+sumNum, err := fake_orm.GetDb(__MasterDB).Tab("users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Sum("money")
 if err != nil {
     panic(err)
 }
 fmt.Println(sumNum)
 
 //Max
-maxNum, err := fake_orm.GetDb(__MasterDB).Tab("admin_users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Max("money")
+maxNum, err := fake_orm.GetDb(__MasterDB).Tab("users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Max("money")
 if err != nil {
     panic(err)
 }
 fmt.Println(maxNum)
 
 //Min
-minNum, err := fake_orm.GetDb(__MasterDB).Tab("admin_users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Min("money")
+minNum, err := fake_orm.GetDb(__MasterDB).Tab("users").Where("name", "=", "aaaaaaa").WhereIn("id", 212, 213).Min("money")
 if err != nil {
     panic(err)
 }
