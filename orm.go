@@ -265,7 +265,7 @@ Sum
 */
 func (db *db) Sum(sumField string) (float64, error) {
 	db.sum = sumField
-	var sum float64
+	var sum sql.NullFloat64
 	where := make([]interface{}, 0, 5)
 	if len(db.where) > 0 {
 		for _, w := range db.where {
@@ -274,9 +274,12 @@ func (db *db) Sum(sumField string) (float64, error) {
 	}
 	err := db.conn.QueryRow(db.sumToSql(), where...).Scan(&sum)
 	if err != nil && err != sql.ErrNoRows {
+		if !sum.Valid {
+			return 0, nil
+		}
 		return 0, err
 	}
-	return sum, nil
+	return sum.Float64, nil
 }
 
 /**
@@ -284,7 +287,7 @@ Sum
 */
 func (db *db) Max(maxField string) (int64, error) {
 	db.max = maxField
-	var max int64
+	var max sql.NullInt64
 	where := make([]interface{}, 0, 5)
 	if len(db.where) > 0 {
 		for _, w := range db.where {
@@ -293,9 +296,12 @@ func (db *db) Max(maxField string) (int64, error) {
 	}
 	err := db.conn.QueryRow(db.maxToSql(), where...).Scan(&max)
 	if err != nil && err != sql.ErrNoRows {
+		if !max.Valid {
+			return 0, nil
+		}
 		return 0, err
 	}
-	return max, nil
+	return max.Int64, nil
 }
 
 /**
@@ -303,7 +309,7 @@ Sum
 */
 func (db *db) Min(minField string) (int64, error) {
 	db.min = minField
-	var min int64
+	var min sql.NullInt64
 	where := make([]interface{}, 0, 5)
 	if len(db.where) > 0 {
 		for _, w := range db.where {
@@ -312,16 +318,19 @@ func (db *db) Min(minField string) (int64, error) {
 	}
 	err := db.conn.QueryRow(db.minToSql(), where...).Scan(&min)
 	if err != nil && err != sql.ErrNoRows {
+		if !min.Valid {
+			return 0, nil
+		}
 		return 0, err
 	}
-	return min, nil
+	return min.Int64, nil
 }
 
 /**
 Count
 */
 func (db *db) Count() (int64, error) {
-	var count int64
+	var count sql.NullInt64
 	where := make([]interface{}, 0, 5)
 	if len(db.where) > 0 {
 		for _, w := range db.where {
@@ -330,9 +339,12 @@ func (db *db) Count() (int64, error) {
 	}
 	err := db.conn.QueryRow(db.countToSql(), where...).Scan(&count)
 	if err != nil && err != sql.ErrNoRows {
+		if !count.Valid {
+			return 0, nil
+		}
 		return 0, err
 	}
-	return count, nil
+	return count.Int64, nil
 }
 
 /**
