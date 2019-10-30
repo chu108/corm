@@ -1,4 +1,4 @@
-package fake_orm
+package corm
 
 import (
 	"database/sql"
@@ -350,15 +350,15 @@ func (db *db) Count() (int64, error) {
 /**
 Exists 查询数据是否存在
 */
-func (db *db) Exists() bool {
+func (db *db) Exists() (bool, error) {
 	count, err := db.Count()
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 	if count > 0 {
-		return true
+		return true, nil
 	}
-	return false
+	return false, nil
 }
 
 /**

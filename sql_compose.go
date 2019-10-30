@@ -1,4 +1,4 @@
-package fake_orm
+package corm
 
 import (
 	"fmt"
