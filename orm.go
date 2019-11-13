@@ -231,7 +231,7 @@ func (db *db) First(result ...interface{}) error {
 		}
 	}
 	err := db.conn.QueryRow(db.whereToSql(), where...).Scan(result...)
-	if err != nil && err != sql.ErrNoRows {
+	if errs(err) != nil {
 		return err
 	}
 	return nil
@@ -249,7 +249,7 @@ func (db *db) Get(callable func(rows *sql.Rows)) error {
 		}
 	}
 	rows, err := db.conn.Query(db.whereToSql(), where...)
-	if err != nil && err != sql.ErrNoRows {
+	if errs(err) != nil {
 		return err
 	}
 	defer rows.Close()
@@ -273,10 +273,7 @@ func (db *db) Sum(sumField string) (float64, error) {
 		}
 	}
 	err := db.conn.QueryRow(db.sumToSql(), where...).Scan(&sum)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return 0, nil
-		}
+	if errs(err) != nil {
 		return 0, err
 	}
 	return sum.Float64, nil
@@ -295,10 +292,7 @@ func (db *db) Max(maxField string) (int64, error) {
 		}
 	}
 	err := db.conn.QueryRow(db.maxToSql(), where...).Scan(&max)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return 0, nil
-		}
+	if errs(err) != nil {
 		return 0, err
 	}
 	return max.Int64, nil
@@ -317,10 +311,7 @@ func (db *db) Min(minField string) (int64, error) {
 		}
 	}
 	err := db.conn.QueryRow(db.minToSql(), where...).Scan(&min)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return 0, nil
-		}
+	if errs(err) != nil {
 		return 0, err
 	}
 	return min.Int64, nil
@@ -338,10 +329,7 @@ func (db *db) Count() (int64, error) {
 		}
 	}
 	err := db.conn.QueryRow(db.countToSql(), where...).Scan(&count)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return 0, nil
-		}
+	if errs(err) != nil {
 		return 0, err
 	}
 	return count.Int64, nil
@@ -427,4 +415,17 @@ func (db *db) Update(updateMap map[string]interface{}) (updateNum int64, err err
 		return 0, err
 	}
 	return rows, nil
+}
+
+func errs(err error) error {
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil
+		}
+		//字段值为NULL时，会报这个错误，可以不用处理，默认为类型的零值
+		if strings.Index(err.Error(), "sql: Scan error on column index") != -1 {
+			return nil
+		}
+	}
+	return err
 }
