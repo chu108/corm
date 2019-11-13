@@ -274,7 +274,7 @@ func (db *db) Sum(sumField string) (float64, error) {
 	}
 	err := db.conn.QueryRow(db.sumToSql(), where...).Scan(&sum)
 	if err != nil {
-		if !sum.Valid || err == sql.ErrNoRows {
+		if err == sql.ErrNoRows {
 			return 0, nil
 		}
 		return 0, err
@@ -296,7 +296,7 @@ func (db *db) Max(maxField string) (int64, error) {
 	}
 	err := db.conn.QueryRow(db.maxToSql(), where...).Scan(&max)
 	if err != nil {
-		if !max.Valid || err == sql.ErrNoRows {
+		if err == sql.ErrNoRows {
 			return 0, nil
 		}
 		return 0, err
@@ -318,7 +318,7 @@ func (db *db) Min(minField string) (int64, error) {
 	}
 	err := db.conn.QueryRow(db.minToSql(), where...).Scan(&min)
 	if err != nil {
-		if !min.Valid || err == sql.ErrNoRows {
+		if err == sql.ErrNoRows {
 			return 0, nil
 		}
 		return 0, err
@@ -339,7 +339,7 @@ func (db *db) Count() (int64, error) {
 	}
 	err := db.conn.QueryRow(db.countToSql(), where...).Scan(&count)
 	if err != nil {
-		if !count.Valid || err == sql.ErrNoRows {
+		if err == sql.ErrNoRows {
 			return 0, nil
 		}
 		return 0, err
