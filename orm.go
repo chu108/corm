@@ -2,6 +2,7 @@ package corm
 
 import (
 	"database/sql"
+	"strconv"
 	"strings"
 )
 
@@ -56,6 +57,34 @@ func (db *db) Where(field, operator string, condition interface{}) *db {
 		condition: condition,
 	})
 	return db
+}
+
+/**
+将数字字符串转换成INT
+*/
+func (db *db) WhereStrToInt(field, operator string, condition string) *db {
+	//strInt, err := strconv.ParseInt(condition, 10, 64)
+	strInt, err := strconv.Atoi(condition)
+	if err != nil {
+		panic(err)
+	}
+	return db.Where(field, operator, strInt)
+}
+
+/**
+将int64转换成字符串
+*/
+func (db *db) WhereInt64ToStr(field, operator string, condition int64) *db {
+	intStr := strconv.FormatInt(condition, 10)
+	return db.Where(field, operator, intStr)
+}
+
+/**
+将int转换成字符串
+*/
+func (db *db) WhereIntToStr(field, operator string, condition int) *db {
+	intStr := strconv.Itoa(condition)
+	return db.Where(field, operator, intStr)
 }
 
 /**
