@@ -419,10 +419,11 @@ func (db *db) Update(updateMap map[string]interface{}) (updateNum int64, err err
 
 func errs(err error) error {
 	if err != nil {
+		//数据库记录不存在，报此错，可忽略
 		if err == sql.ErrNoRows {
 			return nil
 		}
-		//字段值为NULL时，会报这个错误，可以不用处理，默认为类型的零值
+		//字段值为NULL时，报此错，可忽略，默认为类型的零值
 		if strings.Index(err.Error(), "sql: Scan error on column index") != -1 {
 			return nil
 		}
