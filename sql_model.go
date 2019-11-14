@@ -35,7 +35,8 @@ type db struct {
 	whereRaw  []string
 	orderBy   []orderBy
 	groupBy   []string
-	limit     int64
+	limit     int
+	offset    int
 	having    []having
 	sum       string
 	count     string
@@ -43,6 +44,6 @@ type db struct {
 	min       string
 	insert    map[string]interface{}
 	update    map[string]interface{}
-	chunkById int64
+	chunkById int
 	err       error
 }

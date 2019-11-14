@@ -205,8 +205,17 @@ func (db *db) GroupBy(field ...string) *db {
 查询结果数量，格式：Limit(100)
 limit 数量
 */
-func (db *db) Limit(limit int64) *db {
+func (db *db) Limit(limit int) *db {
 	db.limit = limit
+	return db
+}
+
+/**
+查询结果数量，格式：Limit(100)
+limit 数量
+*/
+func (db *db) Offset(offset int) *db {
+	db.offset = offset
 	return db
 }
 
@@ -297,6 +306,34 @@ func (db *db) Get(callable func(rows *sql.Rows)) error {
 		callable(rows)
 	}
 	return nil
+}
+
+/**
+分页数据查询
+page 页数
+pageCount 每页记录数
+callable 回调函数
+*/
+func (db *db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64, error) {
+	if db.err != nil {
+		return 0, db.err
+	}
+
+	db.offset = (page - 1) * pageCount
+	db.limit = pageCount
+
+	//总记录数
+	totalCount, err := db.Count()
+	if err != nil {
+		return 0, err
+	}
+
+	err = db.Get(callable)
+	if err != nil {
+		return 0, err
+	}
+
+	return totalCount, nil
 }
 
 /**
