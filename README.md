@@ -46,14 +46,6 @@ corm是一个伪ORM，目的为了简化操作，不损失性能，不使用反�
 - 打印SQL
     - PrintSql
 
-## 示例模型
-```
-type project struct {
-    id int64
-    name string
-}
-```
-
 ## 示例
 ```go
 package main
