@@ -44,4 +44,5 @@ type db struct {
 	insert    map[string]interface{}
 	update    map[string]interface{}
 	chunkById int64
+	err       error
 }

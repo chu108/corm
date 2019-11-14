@@ -2,6 +2,7 @@ package corm
 
 import (
 	"database/sql"
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -64,9 +65,12 @@ func (db *db) Where(field, operator string, condition interface{}) *db {
 */
 func (db *db) WhereStrToInt(field, operator string, condition string) *db {
 	//strInt, err := strconv.ParseInt(condition, 10, 64)
+	if condition == "" {
+		db.pushErr(errors.New("func:WhereStrToInt condition is empty"))
+	}
 	strInt, err := strconv.Atoi(condition)
 	if err != nil {
-		panic(err)
+		db.pushErr(err)
 	}
 	return db.Where(field, operator, strInt)
 }
@@ -253,6 +257,9 @@ func (db *db) Join(table, on string) *db {
 callable 回调函数
 */
 func (db *db) First(result ...interface{}) error {
+	if db.err != nil {
+		return db.err
+	}
 	where := make([]interface{}, 0, 5)
 	if len(db.where) > 0 {
 		for _, w := range db.where {
@@ -271,6 +278,9 @@ func (db *db) First(result ...interface{}) error {
 callable 回调函数
 */
 func (db *db) Get(callable func(rows *sql.Rows)) error {
+	if db.err != nil {
+		return db.err
+	}
 	where := make([]interface{}, 0, 5)
 	if len(db.where) > 0 {
 		for _, w := range db.where {
@@ -293,6 +303,9 @@ func (db *db) Get(callable func(rows *sql.Rows)) error {
 Sum
 */
 func (db *db) Sum(sumField string) (float64, error) {
+	if db.err != nil {
+		return 0, db.err
+	}
 	db.sum = sumField
 	var sum sql.NullFloat64
 	where := make([]interface{}, 0, 5)
@@ -312,6 +325,9 @@ func (db *db) Sum(sumField string) (float64, error) {
 Sum
 */
 func (db *db) Max(maxField string) (int64, error) {
+	if db.err != nil {
+		return 0, db.err
+	}
 	db.max = maxField
 	var max sql.NullInt64
 	where := make([]interface{}, 0, 5)
@@ -331,6 +347,9 @@ func (db *db) Max(maxField string) (int64, error) {
 Sum
 */
 func (db *db) Min(minField string) (int64, error) {
+	if db.err != nil {
+		return 0, db.err
+	}
 	db.min = minField
 	var min sql.NullInt64
 	where := make([]interface{}, 0, 5)
@@ -350,6 +369,9 @@ func (db *db) Min(minField string) (int64, error) {
 Count
 */
 func (db *db) Count() (int64, error) {
+	if db.err != nil {
+		return 0, db.err
+	}
 	var count sql.NullInt64
 	where := make([]interface{}, 0, 5)
 	if len(db.where) > 0 {
@@ -413,6 +435,9 @@ func (db *db) Insert(insertMap map[string]interface{}) (LastInsertId int64, err 
 修改数据
 */
 func (db *db) Update(updateMap map[string]interface{}) (updateNum int64, err error) {
+	if db.err != nil {
+		return 0, db.err
+	}
 	db.update = updateMap
 	updateStr, vals := db.updateToSql()
 
@@ -444,18 +469,4 @@ func (db *db) Update(updateMap map[string]interface{}) (updateNum int64, err err
 		return 0, err
 	}
 	return rows, nil
-}
-
-func errs(err error) error {
-	if err != nil {
-		//数据库记录不存在，报此错，可忽略
-		if err == sql.ErrNoRows {
-			return nil
-		}
-		//字段值为NULL时，报此错，可忽略，默认为类型的零值
-		if strings.Index(err.Error(), "sql: Scan error on column index") != -1 {
-			return nil
-		}
-	}
-	return err
 }
