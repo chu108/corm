@@ -1,9 +1,9 @@
 package corm
 
 import (
-	"clone_packge/tools/go/ssa/interp/testdata/src/strings"
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 func errs(err error) error {
