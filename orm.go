@@ -130,7 +130,8 @@ func (db *db) WhereNotIn(field string, condition ...interface{}) *db {
 查询 like 条件，格式：WhereLike("name", "张")
 where 条件字符串
 */
-func (db *db) WhereLike(field string, condition interface{}) *db {
+func (db *db) WhereLike(field string, condition string) *db {
+	condition = "%" + condition + "%"
 	db.where = append(db.where, where{
 		field:     field,
 		operator:  LIKE,
@@ -143,7 +144,8 @@ func (db *db) WhereLike(field string, condition interface{}) *db {
 查询 not like 条件，格式：WhereNotLike("name", "张")
 where 条件字符串
 */
-func (db *db) WhereNotLike(field string, condition interface{}) *db {
+func (db *db) WhereNotLike(field string, condition string) *db {
+	condition = "%" + condition + "%"
 	db.where = append(db.where, where{
 		field:     field,
 		operator:  NOT_LIKE,
@@ -266,16 +268,7 @@ func (db *db) Join(table, on string) *db {
 callable 回调函数
 */
 func (db *db) First(result ...interface{}) error {
-	if db.err != nil {
-		return db.err
-	}
-	where := make([]interface{}, 0, 5)
-	if len(db.where) > 0 {
-		for _, w := range db.where {
-			where = append(where, w.condition)
-		}
-	}
-	err := db.conn.QueryRow(db.whereToSql(), where...).Scan(result...)
+	err := db.QueryRow(db.whereToSql(), db.getWhereValue(), result...)
 	if errs(err) != nil {
 		return err
 	}
@@ -287,16 +280,7 @@ func (db *db) First(result ...interface{}) error {
 callable 回调函数
 */
 func (db *db) Get(callable func(rows *sql.Rows)) error {
-	if db.err != nil {
-		return db.err
-	}
-	where := make([]interface{}, 0, 5)
-	if len(db.where) > 0 {
-		for _, w := range db.where {
-			where = append(where, w.condition)
-		}
-	}
-	rows, err := db.conn.Query(db.whereToSql(), where...)
+	rows, err := db.Query(db.whereToSql(), db.getWhereValue()...)
 	if errs(err) != nil {
 		return err
 	}
@@ -315,24 +299,17 @@ pageCount 每页记录数
 callable 回调函数
 */
 func (db *db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64, error) {
-	if db.err != nil {
-		return 0, db.err
-	}
-
 	db.offset = (page - 1) * pageCount
 	db.limit = pageCount
-
 	//总记录数
 	totalCount, err := db.Count()
 	if err != nil {
 		return 0, err
 	}
-
 	err = db.Get(callable)
 	if err != nil {
 		return 0, err
 	}
-
 	return totalCount, nil
 }
 
@@ -340,18 +317,9 @@ func (db *db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64
 Sum
 */
 func (db *db) Sum(sumField string) (float64, error) {
-	if db.err != nil {
-		return 0, db.err
-	}
 	db.sum = sumField
 	var sum sql.NullFloat64
-	where := make([]interface{}, 0, 5)
-	if len(db.where) > 0 {
-		for _, w := range db.where {
-			where = append(where, w.condition)
-		}
-	}
-	err := db.conn.QueryRow(db.sumToSql(), where...).Scan(&sum)
+	err := db.QueryRow(db.sumToSql(), db.getWhereValue(), &sum)
 	if errs(err) != nil {
 		return 0, err
 	}
@@ -362,18 +330,9 @@ func (db *db) Sum(sumField string) (float64, error) {
 Sum
 */
 func (db *db) Max(maxField string) (int64, error) {
-	if db.err != nil {
-		return 0, db.err
-	}
 	db.max = maxField
 	var max sql.NullInt64
-	where := make([]interface{}, 0, 5)
-	if len(db.where) > 0 {
-		for _, w := range db.where {
-			where = append(where, w.condition)
-		}
-	}
-	err := db.conn.QueryRow(db.maxToSql(), where...).Scan(&max)
+	err := db.QueryRow(db.maxToSql(), db.getWhereValue(), &max)
 	if errs(err) != nil {
 		return 0, err
 	}
@@ -384,18 +343,9 @@ func (db *db) Max(maxField string) (int64, error) {
 Sum
 */
 func (db *db) Min(minField string) (int64, error) {
-	if db.err != nil {
-		return 0, db.err
-	}
 	db.min = minField
 	var min sql.NullInt64
-	where := make([]interface{}, 0, 5)
-	if len(db.where) > 0 {
-		for _, w := range db.where {
-			where = append(where, w.condition)
-		}
-	}
-	err := db.conn.QueryRow(db.minToSql(), where...).Scan(&min)
+	err := db.QueryRow(db.minToSql(), db.getWhereValue(), &min)
 	if errs(err) != nil {
 		return 0, err
 	}
@@ -406,17 +356,8 @@ func (db *db) Min(minField string) (int64, error) {
 Count
 */
 func (db *db) Count() (int64, error) {
-	if db.err != nil {
-		return 0, db.err
-	}
 	var count sql.NullInt64
-	where := make([]interface{}, 0, 5)
-	if len(db.where) > 0 {
-		for _, w := range db.where {
-			where = append(where, w.condition)
-		}
-	}
-	err := db.conn.QueryRow(db.countToSql(), where...).Scan(&count)
+	err := db.QueryRow(db.countToSql(), db.getWhereValue(), &count)
 	if errs(err) != nil {
 		return 0, err
 	}
@@ -451,13 +392,7 @@ func (db *db) Insert(insertMap map[string]interface{}) (LastInsertId int64, err 
 	db.insert = insertMap
 	insertStr, vals := db.insertToSql()
 
-	stmt, err := db.conn.Prepare(insertStr)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Close()
-
-	rest, err := stmt.Exec(vals...)
+	rest, err := db.Exec(insertStr, vals...)
 	if err != nil {
 		return 0, err
 	}
@@ -472,32 +407,11 @@ func (db *db) Insert(insertMap map[string]interface{}) (LastInsertId int64, err 
 修改数据
 */
 func (db *db) Update(updateMap map[string]interface{}) (updateNum int64, err error) {
-	if db.err != nil {
-		return 0, db.err
-	}
 	db.update = updateMap
 	updateStr, vals := db.updateToSql()
 
-	where := make([]interface{}, 0, 5)
-	if len(db.where) > 0 {
-		for _, w := range db.where {
-			if len(w.conditionArray) > 0 {
-				where = append(where, w.conditionArray...)
-			}
-			if w.condition != nil {
-				where = append(where, w.condition)
-			}
-		}
-	}
-	vals = append(vals, where...)
-
-	stmt, err := db.conn.Prepare(updateStr)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Close()
-
-	rest, err := stmt.Exec(vals...)
+	vals = append(vals, db.getWhereValue()...)
+	rest, err := db.Exec(updateStr, vals...)
 	if err != nil {
 		return 0, err
 	}

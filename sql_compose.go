@@ -107,7 +107,7 @@ func (db *db) addWhere() string {
 				case IN, NOT_IN:
 					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s(%s)", w.field, w.operator, arrayToStrPlace(w.conditionArray)))
 				case LIKE, NOT_LIKE:
-					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s '%%%s%%'", w.field, w.operator, w.condition))
+					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s %s", w.field, w.operator, "?"))
 				case BETWEEN:
 					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s %s AND %s", w.field, w.operator, "?", "?"))
 				default:
@@ -154,6 +154,7 @@ func (db *db) addLimit() string {
 条件转SQL语句
 */
 func (db *db) whereToSql() string {
+	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
 		db.addFields(),
@@ -168,6 +169,7 @@ func (db *db) whereToSql() string {
 }
 
 func (db *db) countToSql() string {
+	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
 		db.addCount(),
@@ -175,13 +177,12 @@ func (db *db) countToSql() string {
 		db.addTable(),
 		db.addJoin(),
 		db.addWhere(),
-		db.addOrderBy(),
-		db.addLimit(),
 	)
 	return retSql(sqlStr)
 }
 
 func (db *db) sumToSql() string {
+	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
 		db.addSum(),
@@ -189,13 +190,12 @@ func (db *db) sumToSql() string {
 		db.addTable(),
 		db.addJoin(),
 		db.addWhere(),
-		db.addOrderBy(),
-		db.addLimit(),
 	)
 	return retSql(sqlStr)
 }
 
 func (db *db) maxToSql() string {
+	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
 		db.addMax(),
@@ -210,6 +210,7 @@ func (db *db) maxToSql() string {
 }
 
 func (db *db) minToSql() string {
+	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
 		db.addMin(),
@@ -254,7 +255,7 @@ func (db *db) updateToStrAndArr() (string, []interface{}) {
 }
 
 func (db *db) insertToSql() (sql string, arr []interface{}) {
-
+	db.check()
 	insertStr, vals := db.insertToStrAndArr()
 
 	sqlStr := sqlCompose(
@@ -265,6 +266,7 @@ func (db *db) insertToSql() (sql string, arr []interface{}) {
 }
 
 func (db *db) updateToSql() (sql string, arr []interface{}) {
+	db.check()
 	updateStr, vals := db.updateToStrAndArr()
 
 	sqlStr := sqlCompose(
@@ -285,7 +287,7 @@ func retSql(sqlStr string) string {
 /**
 条件转SQL语句, 自定义LIMIT
 */
-func (db *db) whereToSqlForLimit(count int64) string {
+func (db *db) whereToSqlForLimit(count int) string {
 	db.limit = count
 	return db.whereToSql()
 }
@@ -296,4 +298,23 @@ func arrayToStrPlace(arr []interface{}) string {
 		strTmp = append(strTmp, "?")
 	}
 	return strings.Join(strTmp, ",")
+}
+
+func (db *db) getWhereValue() []interface{} {
+	where := make([]interface{}, 0, 5)
+	if len(db.where) > 0 {
+		for _, w := range db.where {
+			switch w.operator {
+			case IN, NOT_IN:
+				where = append(where, w.conditionArray...)
+			case LIKE, NOT_LIKE:
+				where = append(where, w.condition)
+			case BETWEEN:
+				where = append(where, w.conditionArray...)
+			default:
+				where = append(where, w.condition)
+			}
+		}
+	}
+	return where
 }

@@ -1,17 +1,50 @@
 # corm
 
-corm是一个伪ORM，目的为了简化操作，不损失性能，不使用反射，操作起来更简便
+corm是一个伪ORM，目的为了简化操作，不损失性能，不使用反射，操作起来更简便。
+版本要求: > 1.13
 
 ## 支持的操作
-
-* Select、SelectRaw
-* Where、WhereRaw、WhereIn、WhereNotIn、WhereLike、WhereNotLike、WhereBetween、WhereStrToInt、WhereInt64ToStr、WhereIntToStr
-* Join、LeftJoin、RightJoin
-* OrderBy、GroupBy、Limit、Having
-* First、Get、GetPage
-* Sum、Max、Min、Count、Exists
-* Insert、Update
-* PrintSql
+- 查询
+    - Select 普通查询
+    - SelectRaw 原生查询
+- where 条件
+    - Where
+    - WhereRaw 原生where条件
+    - WhereIn
+    - WhereNotIn
+    - WhereLike
+    - WhereNotLike
+    - WhereBetween
+    - WhereStrToInt
+    - WhereInt64ToStr
+    - WhereIntToStr
+- 关联查询 Join
+    - Join
+    - LeftJoin
+    - RightJoin
+- 排序
+    - OrderBy
+- 分组查询
+    - GroupBy
+- 数据限定
+    - Limit
+    - Offset
+- 查询数据
+    - First
+    - Get
+    - GetPage 分页
+    - Exists 是否存在
+- 聚合查询
+    - Sum
+    - Max
+    - Min
+    - Count
+- 插入更新
+    - Insert
+    - Update
+    - Exec
+- 打印SQL
+    - PrintSql
 
 ## 示例模型
 ```
@@ -21,176 +54,259 @@ type project struct {
 }
 ```
 
-## 示例数据连接
-
+## 示例
 ```go
-//MasterDB 初始化好的数据库连接
-MasterDB
-```
+package main
 
-### 获取一条数据
-```
-project := &project{}
-err = corm.GetDb(MasterDB)
-        .Tab("project")
-        .Select("id","name")
-        .Where("id", ">", 100)
-        .OrderBy("id", "desc")
-        .First(&project.id, &project.name)
-if err != nil {
-    panic(err)
+import (
+	"database/sql"
+	"fmt"
+	"github.com/chu108/corm"
+	_ "github.com/go-sql-driver/mysql"
+	"time"
+)
+
+var MasterDB *sql.DB
+var cerr error
+//用户
+type Users struct {
+	Id        int64
+	Name      string
+	Age       int64
+	Phone     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	GroupId   int64
 }
-//读取结果
-fmt.Println(project)
-```
-
-
-### 获取多条数据
-```
-
-//返回Slicp类型数据
-project := make([]*project, 0, 10)
-err = corm.GetDb(MasterDB).Tab("project")
-        .Select("id","name")
-        .Where("id", ">", 30287016)
-        .OrderBy("id", "desc")
-        .Get(func(rows *sql.Rows) {
-            obj := new(project)
-            _ = rows.Scan(&obj.id, &obj.name)
-            project = append(project, obj)
-        })
-if err != nil {
-    panic(err)
+//组
+type Groups struct {
+	Id        int64
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
-//读取结果
-for k, v := range project {
-    fmt.Println(k, v)
+//用户与组关联
+type UserGroups struct {
+	Id        int64
+	UserId    int64
+	GroupId   int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
-//返回Map类型数据
-project := make(map[int64]*project)
-err = corm.GetDb(MasterDB).Tab("project")
-        .Select("id","name")
-        .Where("id", ">", 30287016)
-        .OrderBy("id", "desc")
-        .Get(func(rows *sql.Rows) {
-            obj := new(project)
-            _ = rows.Scan(&obj.id, &obj.name)
-            project[obj.id] = obj
-        })
-if err != nil {
-    panic(err)
-}
-//读取结果
-for k, v := range project {
-    fmt.Println(k, v)
+func init() {
+	MasterDB, cerr = sql.Open("mysql", "corm:666666@tcp(127.0.0.1:3306)/corm_demo")
+	echoErr(cerr)
 }
 
-```
-
-### 条件组合
-```
-//多条件
-err = corm.GetDb(MasterDB).Tab("project")
-    .Select("id", "name")
-    .Where("id", ">", 30287016)
-    .Where("name", "=", "张三")
-    .OrderBy("id", "desc")
-
-//多条件
-err = corm.GetDb(MasterDB).Tab("project")
-    .SelectRaw("id, name")
-    .WhereRaw("id > 30287016")
-    .Where("name", "=", "张三")
-    .OrderBy("id", "desc")
-
-//join
-err = corm.GetDb(MasterDB).Tab("users").join("group","user.group_id = group.id")
-    .Select("users.id","users.name","group.name")
-    .Where("users.id", ">", 30287016)
-    .Where("users.name", "=", "张三")
-    .OrderBy("users.id", "desc")
-
-//join as
-err = corm.GetDb(MasterDB).Tab("users as u").join("group as g","u.group_id = g.id")
-    .Select("u.id","u.name","g.name")
-    .Where("u.id", ">", 30287016)
-    .Where("u.name", "=", "张三")
-    .OrderBy("u.id", "desc")
-    
-```
-
-## 插入记录
-```go
-insertId, err := corm.GetDb(MasterDB).Tab("users")
-    .Insert(map[string]interface{}{
-        "nickname":"aaaaaaa",
-        "name":"aaaaaaa",
-        "phone":1231231234,
-    })
-if err != nil {
-    panic(err)
+func main() {
+	//查询
+	selectOne()
+	selectTwo()
+	//条件组合
+	whereOne()
+	whereTwo()
+	//关联查询
+	joinOne()
+	joinTwo()
+	//单条查询、分页查询
+	first()
+	getPage()
+	//聚合查询
+	count()
+	//插入、更新
+	insert()
+	update()
+	//验证结果是否存在
+	exists()
 }
-//返回插入ID
-fmt.Println(insertId)
-```
 
-### 修改数据
-```go
-num, err := corm.GetDb(MasterDB).Tab("users")
-    .Where("name", "=", "aaaaaaa")
-    .WhereIn("id", 212, 213)
-    .Update(map[string]interface{}{
-        "nickname":   "eeeeeeeeeee",
-        "name":       "eeeeeeeeeee",
-        "phone":      "eeeeeeeeeee",
-    })
-if err != nil {
-    panic(err)
+func selectOne() {
+	data := make([]*Users, 0)
+	cerr = corm.GetDb(MasterDB).Tab("users").Select("name", "age", "phone").Where("age", ">=", 24).Get(func(rows *sql.Rows) {
+		user := new(Users)
+		_ = rows.Scan(&user.Name, &user.Age, &user.Phone)
+		data = append(data, user)
+	})
+	echoErr(cerr)
+	for k, v := range data {
+		fmt.Println(k, v.Name, v.Age, v.Phone)
+	}
 }
-//更新行数
-fmt.Println(num)
-```
 
-### 统计查询
-```go
-//Count
-countNum, err := corm.GetDb(MasterDB).Tab("users")
-    .Where("name", "=", "aaaaaaa")
-    .WhereIn("id", 212, 213)
-    .Count()
-if err != nil {
-    panic(err)
+func selectTwo() {
+	data := make([]*Users, 0)
+	cerr = corm.GetDb(MasterDB).Tab("users").SelectRaw("name, age").Select("phone").Where("age", ">=", 24).Get(func(rows *sql.Rows) {
+		user := new(Users)
+		_ = rows.Scan(&user.Name, &user.Age, &user.Phone)
+		data = append(data, user)
+	})
+	echoErr(cerr)
+	for k, v := range data {
+		fmt.Println(k, v.Name, v.Age, v.Phone)
+	}
 }
-fmt.Println(countNum)
 
-//Sum
-sumNum, err := corm.GetDb(MasterDB).Tab("users")
-    .Where("name", "=", "aaaaaaa")
-    .WhereIn("id", 212, 213)
-    .Sum("money")
-if err != nil {
-    panic(err)
+func whereOne() {
+	data := make([]*Users, 0)
+	cerr = corm.GetDb(MasterDB).Tab("users").Select("name", "age", "phone").
+		Where("age", ">=", 24).
+		Where("phone", "=", "18310953333").
+		WhereRaw("id = 9").
+		WhereLike("name", "王五").
+		Get(func(rows *sql.Rows) {
+			user := new(Users)
+			_ = rows.Scan(&user.Name, &user.Age, &user.Phone)
+			data = append(data, user)
+		})
+	echoErr(cerr)
+	for k, v := range data {
+		fmt.Println(k, v.Name, v.Age, v.Phone)
+	}
 }
-fmt.Println(sumNum)
 
-//Max
-maxNum, err := corm.GetDb(MasterDB).Tab("users")
-    .Where("name", "=", "aaaaaaa")
-    .WhereIn("id", 212, 213)
-    .Max("money")
-if err != nil {
-    panic(err)
+func whereTwo() {
+	data := make([]*Users, 0)
+	cerr = corm.GetDb(MasterDB).Tab("users").Select("name", "age", "phone").
+		Where("name", "=", "王五").
+		WhereBetween("age", 30, 34).
+		WhereBetween("created_at", "2017-08-08 00:00:00", "2019-11-14 23:23:00").
+		WhereIntToStr("phone", "=", 18310953333).
+		Get(func(rows *sql.Rows) {
+			user := new(Users)
+			_ = rows.Scan(&user.Name, &user.Age, &user.Phone)
+			data = append(data, user)
+		})
+	echoErr(cerr)
+	for k, v := range data {
+		fmt.Println(k, v.Name, v.Age, v.Phone)
+	}
 }
-fmt.Println(maxNum)
 
-//Min
-minNum, err := corm.GetDb(MasterDB).Tab("users")
-    .Where("name", "=", "aaaaaaa")
-    .WhereIn("id", 212, 213)
-    .Min("money")
-if err != nil {
-    panic(err)
+func joinOne() {
+	data := make([]*Users, 0)
+	cerr = corm.GetDb(MasterDB).Tab("users").Join("user_groups", "users.id = user_groups.user_id").
+		Select("users.name", "users.age", "users.phone", "user_groups.group_id").
+		Where("users.name", "=", "王五").
+		WhereBetween("users.age", 30, 34).
+		WhereBetween("users.created_at", "2017-08-08 00:00:00", "2019-11-14 23:23:00").
+		WhereIntToStr("users.phone", "=", 18310953333).
+		Get(func(rows *sql.Rows) {
+			user := new(Users)
+			_ = rows.Scan(&user.Name, &user.Age, &user.Phone, &user.GroupId)
+			data = append(data, user)
+		})
+	echoErr(cerr)
+	for k, v := range data {
+		fmt.Println(k, v.Name, v.Age, v.Phone, v.GroupId)
+	}
 }
-fmt.Println(minNum)
+
+func joinTwo() {
+	data := make([]*Users, 0)
+	cerr = corm.GetDb(MasterDB).Tab("users u").Join("user_groups ug", "u.id = ug.user_id").
+		Select("u.name", "u.age", "u.phone", "ug.group_id").
+		Where("u.name", "=", "王五").
+		WhereBetween("u.age", 30, 34).
+		WhereBetween("u.created_at", "2017-08-08 00:00:00", "2019-11-14 23:23:00").
+		WhereIntToStr("u.phone", "=", 18310953333).
+		Get(func(rows *sql.Rows) {
+			user := new(Users)
+			_ = rows.Scan(&user.Name, &user.Age, &user.Phone, &user.GroupId)
+			data = append(data, user)
+		})
+	echoErr(cerr)
+	for k, v := range data {
+		fmt.Println(k, v.Name, v.Age, v.Phone, v.GroupId)
+	}
+}
+
+func first() {
+	u := new(Users)
+	cerr = corm.GetDb(MasterDB).Tab("users u").Join("user_groups ug", "u.id = ug.user_id").
+		Select("u.name", "u.age", "u.phone", "ug.group_id").
+		Where("u.name", "=", "王五").
+		WhereBetween("u.age", 30, 34).
+		WhereRaw("u.phone like '%18310953333%'").
+		First(&u.Name, &u.Age, &u.Phone, &u.GroupId)
+	echoErr(cerr)
+	fmt.Println(u.Name, u.Age, u.Phone, u.GroupId)
+}
+
+func getPage() {
+	//当前页数
+	page := 1
+	//每页显示记录数
+	pageCount := 2
+	//总记录数
+	var total int64
+	//数据
+	data := make([]*Users, 0)
+
+	total, cerr = corm.GetDb(MasterDB).Tab("users").Select("name", "age", "phone").
+		GetPage(page, pageCount, func(rows *sql.Rows) {
+			user := new(Users)
+			_ = rows.Scan(&user.Name, &user.Age, &user.Phone)
+			data = append(data, user)
+		})
+	echoErr(cerr)
+	fmt.Println("总记录数：", total, "总页数：", total/int64(pageCount))
+	for k, v := range data {
+		fmt.Println(k, v.Name, v.Age, v.Phone)
+	}
+}
+
+func count() {
+	count, cerr := corm.GetDb(MasterDB).Tab("users").Where("age", ">", 20).Count()
+	echoErr(cerr)
+	fmt.Println("总数：", count)
+
+	max, cerr := corm.GetDb(MasterDB).Tab("users").Where("age", ">", 20).Max("age")
+	echoErr(cerr)
+	fmt.Println("最大年龄：", max)
+
+	min, cerr := corm.GetDb(MasterDB).Tab("users").Where("age", ">", 20).Min("age")
+	echoErr(cerr)
+	fmt.Println("最小年龄：", min)
+
+	sum, cerr := corm.GetDb(MasterDB).Tab("users").Where("age", ">", 20).Sum("age")
+	echoErr(cerr)
+	fmt.Println("年龄之和：", sum)
+}
+
+func insert() {
+	insertId, cerr := corm.GetDb(MasterDB).Tab("users").
+		Insert(map[string]interface{}{
+			"nickname": "夏雨荷",
+			"name":     "夏雨荷",
+			"phone":    1231231234,
+			"age":      30,
+		})
+	echoErr(cerr)
+	fmt.Println("插入ID:", insertId)
+}
+
+func update() {
+	num, err := corm.GetDb(MasterDB).Tab("users").
+		WhereIn("id", 9, 10).
+		Update(map[string]interface{}{
+			"age":      20,
+		})
+	echoErr(err)
+	//更新行数
+	fmt.Println("影响行数：", num)
+}
+func exists() {
+	is, err := corm.GetDb(MasterDB).Tab("users").Where("id", "=", 19).Exists()
+	echoErr(err)
+	//更新行数
+	fmt.Println("数据是否存在：", is)
+}
+
+func echoErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 ```
