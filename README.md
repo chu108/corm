@@ -34,6 +34,9 @@ corm是一个伪ORM，目的为了简化操作，不损失性能，不使用反�
     - Get
     - GetPage 分页
     - Exists 是否存在
+    - ValueStr 以 string 形式返回指定字段
+    - ValueInt 以 int 形式返回指定字段
+    - ValueFloat 以 float64 形式返回指定字段
 - 聚合查询
     - Sum
     - Max
@@ -337,6 +340,20 @@ func trans() {
 	})
 	echoErr(err)
 
+}
+
+func value() {
+	valStr, err := corm.GetDb(MasterDB).Tab("users").Where("id", "=", 10).ValueStr("name")
+	echoErr(err)
+	fmt.Println("字符串：", valStr)
+
+	valInt, err := corm.GetDb(MasterDB).Tab("users").Where("id", "=", 10).ValueInt("age")
+	echoErr(err)
+	fmt.Println("int值：", valInt)
+
+	valFloat, err := corm.GetDb(MasterDB).Tab("users").Where("id", "=", 10).ValueFloat("age")
+	echoErr(err)
+	fmt.Println("float值：", valFloat)
 }
 
 func echoErr(err error) {

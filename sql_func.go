@@ -86,7 +86,9 @@ func errs(err error) error {
 }
 
 func (db *Db) pushErr(err error) {
-	db.err = fmt.Errorf("%w", err)
+	if err != nil {
+		db.err = fmt.Errorf("%w", err)
+	}
 }
 
 func (db *Db) getErr() error {

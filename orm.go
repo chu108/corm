@@ -276,6 +276,42 @@ func (db *Db) First(result ...interface{}) error {
 }
 
 /**
+查询某个字段，以字符串形式返回
+*/
+func (db *Db) ValueStr(field string) (string, error) {
+	db.fields = nil
+	db.Select(field)
+
+	var value string
+	err := db.First(&value)
+	return value, err
+}
+
+/**
+查询某个字段，以数字形式返回
+*/
+func (db *Db) ValueInt(field string) (int, error) {
+	db.fields = nil
+	db.Select(field)
+
+	var value int
+	err := db.First(&value)
+	return value, err
+}
+
+/**
+查询某个字段，以Float形式返回
+*/
+func (db *Db) ValueFloat(field string) (float64, error) {
+	db.fields = nil
+	db.Select(field)
+
+	var value float64
+	err := db.First(&value)
+	return value, err
+}
+
+/**
 查询多条数据
 callable 回调函数
 */
