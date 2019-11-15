@@ -42,7 +42,8 @@ corm是一个伪ORM，目的为了简化操作，不损失性能，不使用反�
 - 插入更新
     - Insert
     - Update
-    - Exec
+    - Exec 原生SQL
+    - Transaction 事务支持
 - 打印SQL
     - PrintSql
 
@@ -111,6 +112,8 @@ func main() {
 	update()
 	//验证结果是否存在
 	exists()
+	//事务
+	trans()
 }
 
 func selectOne() {
@@ -288,11 +291,52 @@ func update() {
 	//更新行数
 	fmt.Println("影响行数：", num)
 }
+
 func exists() {
 	is, err := corm.GetDb(MasterDB).Tab("users").Where("id", "=", 19).Exists()
 	echoErr(err)
 	//更新行数
 	fmt.Println("数据是否存在：", is)
+}
+
+func trans() {
+
+	err := corm.GetDb(MasterDB).Transaction(func(dbTrans *corm.Db) error {
+
+		user := new(Users)
+		err := dbTrans.Tab("users").Select("id").Where("nickname", "=", "大张伟").First(&user.Id)
+		if err != nil {
+			return err
+		}
+
+		_, err = dbTrans.Tab("users").Where("id", "=", user.Id).Update(map[string]interface{}{
+			"name": "张柏芝22",
+			"age":  30,
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = dbTrans.Tab("users").Where("nickname", "=", "张三").Update(map[string]interface{}{
+			"age":  30,
+			"name": "周星驰22",
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = dbTrans.Tab("users").Where("nickname", "=", "李四").Update(map[string]interface{}{
+			"age":  30,
+			"name": "吴镇宇22",
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	echoErr(err)
+
 }
 
 func echoErr(err error) {

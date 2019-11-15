@@ -12,63 +12,63 @@ func sqlCompose(sql ...string) string {
 	return strings.Join(sql, " ")
 }
 
-func (db *db) addSelect() string {
+func (db *Db) addSelect() string {
 	return SELECT
 }
 
-func (db *db) addUpdate() string {
+func (db *Db) addUpdate() string {
 	return UPDATE
 }
 
-func (db *db) addDelete() string {
+func (db *Db) addDelete() string {
 	return DELETE
 }
 
-func (db *db) addInsert() string {
+func (db *Db) addInsert() string {
 	return INSERT
 }
 
-func (db *db) addTable() string {
+func (db *Db) addTable() string {
 	return db.table
 }
 
-func (db *db) addFrom() string {
+func (db *Db) addFrom() string {
 	return FROM
 }
 
-func (db *db) addSet() string {
+func (db *Db) addSet() string {
 	return SET
 }
 
-func (db *db) addSum() string {
+func (db *Db) addSum() string {
 	if db.sum == "" {
 		return ""
 	}
 	return fmt.Sprintf("SUM(%s) AS sum", db.sum)
 }
 
-func (db *db) addMax() string {
+func (db *Db) addMax() string {
 	if db.max == "" {
 		return ""
 	}
 	return fmt.Sprintf("MAX(%s) AS max", db.max)
 }
 
-func (db *db) addMin() string {
+func (db *Db) addMin() string {
 	if db.min == "" {
 		return ""
 	}
 	return fmt.Sprintf("MIN(%s) AS min", db.min)
 }
 
-func (db *db) addCount() string {
+func (db *Db) addCount() string {
 	return "COUNT(*) AS count"
 }
 
 /**
 添加字段
 */
-func (db *db) addFields() (sqlStr string) {
+func (db *Db) addFields() (sqlStr string) {
 	if len(db.fields) == 0 {
 		sqlStr = "*"
 	} else {
@@ -84,7 +84,7 @@ func (db *db) addFields() (sqlStr string) {
 /**
 添加join
 */
-func (db *db) addJoin() (sqlStr string) {
+func (db *Db) addJoin() (sqlStr string) {
 	if len(db.join) > 0 {
 		join := make([]string, 0, 2)
 		for _, j := range db.join {
@@ -98,7 +98,7 @@ func (db *db) addJoin() (sqlStr string) {
 /**
 添加where条件
 */
-func (db *db) addWhere() string {
+func (db *Db) addWhere() string {
 	if len(db.whereRaw) > 0 || len(db.where) > 0 {
 		sqlTmp := make([]string, 0, 5)
 		if len(db.where) > 0 {
@@ -129,7 +129,7 @@ func (db *db) addWhere() string {
 /**
 添加排序条件
 */
-func (db *db) addOrderBy() string {
+func (db *Db) addOrderBy() string {
 	if len(db.orderBy) > 0 {
 		order := make([]string, 0, 2)
 		for _, o := range db.orderBy {
@@ -143,7 +143,7 @@ func (db *db) addOrderBy() string {
 /**
 添加limit
 */
-func (db *db) addLimit() string {
+func (db *Db) addLimit() string {
 	if db.limit > 0 {
 		return fmt.Sprintf("%s %d", LIMIT, db.limit)
 	}
@@ -153,7 +153,7 @@ func (db *db) addLimit() string {
 /**
 条件转SQL语句
 */
-func (db *db) whereToSql() string {
+func (db *Db) whereToSql() string {
 	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
@@ -168,7 +168,7 @@ func (db *db) whereToSql() string {
 	return retSql(sqlStr)
 }
 
-func (db *db) countToSql() string {
+func (db *Db) countToSql() string {
 	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
@@ -181,7 +181,7 @@ func (db *db) countToSql() string {
 	return retSql(sqlStr)
 }
 
-func (db *db) sumToSql() string {
+func (db *Db) sumToSql() string {
 	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
@@ -194,7 +194,7 @@ func (db *db) sumToSql() string {
 	return retSql(sqlStr)
 }
 
-func (db *db) maxToSql() string {
+func (db *Db) maxToSql() string {
 	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
@@ -209,7 +209,7 @@ func (db *db) maxToSql() string {
 	return retSql(sqlStr)
 }
 
-func (db *db) minToSql() string {
+func (db *Db) minToSql() string {
 	db.check()
 	sqlStr := sqlCompose(
 		db.addSelect(),
@@ -224,7 +224,7 @@ func (db *db) minToSql() string {
 	return retSql(sqlStr)
 }
 
-func (db *db) insertToStrAndArr() (string, []interface{}) {
+func (db *Db) insertToStrAndArr() (string, []interface{}) {
 	var keys []string
 	var keyVals []string
 	var vals []interface{}
@@ -242,7 +242,7 @@ func (db *db) insertToStrAndArr() (string, []interface{}) {
 	return insertStr, vals
 }
 
-func (db *db) updateToStrAndArr() (string, []interface{}) {
+func (db *Db) updateToStrAndArr() (string, []interface{}) {
 	var keys []string
 	var vals []interface{}
 
@@ -254,7 +254,7 @@ func (db *db) updateToStrAndArr() (string, []interface{}) {
 	return strings.Join(keys, ", "), vals
 }
 
-func (db *db) insertToSql() (sql string, arr []interface{}) {
+func (db *Db) insertToSql() (sql string, arr []interface{}) {
 	db.check()
 	insertStr, vals := db.insertToStrAndArr()
 
@@ -265,7 +265,7 @@ func (db *db) insertToSql() (sql string, arr []interface{}) {
 	return retSql(sqlStr), vals
 }
 
-func (db *db) updateToSql() (sql string, arr []interface{}) {
+func (db *Db) updateToSql() (sql string, arr []interface{}) {
 	db.check()
 	updateStr, vals := db.updateToStrAndArr()
 
@@ -287,7 +287,7 @@ func retSql(sqlStr string) string {
 /**
 条件转SQL语句, 自定义LIMIT
 */
-func (db *db) whereToSqlForLimit(count int) string {
+func (db *Db) whereToSqlForLimit(count int) string {
 	db.limit = count
 	return db.whereToSql()
 }
@@ -300,7 +300,7 @@ func arrayToStrPlace(arr []interface{}) string {
 	return strings.Join(strTmp, ",")
 }
 
-func (db *db) getWhereValue() []interface{} {
+func (db *Db) getWhereValue() []interface{} {
 	where := make([]interface{}, 0, 5)
 	if len(db.where) > 0 {
 		for _, w := range db.where {
