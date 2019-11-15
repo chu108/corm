@@ -268,7 +268,7 @@ func (db *Db) Join(table, on string) *Db {
 callable 回调函数
 */
 func (db *Db) First(result ...interface{}) error {
-	err := db.QueryRow(db.whereToSql(), db.getWhereValue(), result...)
+	err := db.queryRow(db.whereToSql(), db.getWhereValue(), result...)
 	if errs(err) != nil {
 		return err
 	}
@@ -316,7 +316,7 @@ func (db *Db) ValueFloat(field string) (float64, error) {
 callable 回调函数
 */
 func (db *Db) Get(callable func(rows *sql.Rows)) error {
-	rows, err := db.Query(db.whereToSql(), db.getWhereValue()...)
+	rows, err := db.query(db.whereToSql(), db.getWhereValue()...)
 	if errs(err) != nil {
 		return err
 	}
@@ -355,7 +355,7 @@ Sum
 func (db *Db) Sum(sumField string) (float64, error) {
 	db.sum = sumField
 	var sum sql.NullFloat64
-	err := db.QueryRow(db.sumToSql(), db.getWhereValue(), &sum)
+	err := db.queryRow(db.sumToSql(), db.getWhereValue(), &sum)
 	if errs(err) != nil {
 		return 0, err
 	}
@@ -368,7 +368,7 @@ Sum
 func (db *Db) Max(maxField string) (int64, error) {
 	db.max = maxField
 	var max sql.NullInt64
-	err := db.QueryRow(db.maxToSql(), db.getWhereValue(), &max)
+	err := db.queryRow(db.maxToSql(), db.getWhereValue(), &max)
 	if errs(err) != nil {
 		return 0, err
 	}
@@ -381,7 +381,7 @@ Sum
 func (db *Db) Min(minField string) (int64, error) {
 	db.min = minField
 	var min sql.NullInt64
-	err := db.QueryRow(db.minToSql(), db.getWhereValue(), &min)
+	err := db.queryRow(db.minToSql(), db.getWhereValue(), &min)
 	if errs(err) != nil {
 		return 0, err
 	}
@@ -393,7 +393,7 @@ Count
 */
 func (db *Db) Count() (int64, error) {
 	var count sql.NullInt64
-	err := db.QueryRow(db.countToSql(), db.getWhereValue(), &count)
+	err := db.queryRow(db.countToSql(), db.getWhereValue(), &count)
 	if errs(err) != nil {
 		return 0, err
 	}
@@ -428,7 +428,7 @@ func (db *Db) Insert(insertMap map[string]interface{}) (LastInsertId int64, err 
 	db.insert = insertMap
 	insertStr, vals := db.insertToSql()
 
-	rest, err := db.Exec(insertStr, vals...)
+	rest, err := db.exec(insertStr, vals...)
 	if err != nil {
 		return 0, err
 	}
@@ -447,7 +447,7 @@ func (db *Db) Update(updateMap map[string]interface{}) (updateNum int64, err err
 	updateStr, vals := db.updateToSql()
 
 	vals = append(vals, db.getWhereValue()...)
-	rest, err := db.Exec(updateStr, vals...)
+	rest, err := db.exec(updateStr, vals...)
 	if err != nil {
 		return 0, err
 	}

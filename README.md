@@ -45,7 +45,6 @@ corm是一个伪ORM，目的为了简化操作，不损失性能，不使用反�
 - 插入更新
     - Insert
     - Update
-    - Exec 原生SQL
     - Transaction 事务支持
 - 打印SQL
     - PrintSql

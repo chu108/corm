@@ -12,7 +12,7 @@ query 查询语句
 args 查询参数
 scan 结果绑定参数
 */
-func (db *Db) QueryRow(query string, args []interface{}, scan ...interface{}) error {
+func (db *Db) queryRow(query string, args []interface{}, scan ...interface{}) error {
 	if db.err != nil {
 		return db.err
 	}
@@ -28,7 +28,7 @@ func (db *Db) QueryRow(query string, args []interface{}, scan ...interface{}) er
 query 查询语句
 args 查询参数
 */
-func (db *Db) Query(query string, args ...interface{}) (*sql.Rows, error) {
+func (db *Db) query(query string, args ...interface{}) (*sql.Rows, error) {
 	if db.err != nil {
 		return nil, db.err
 	}
@@ -44,7 +44,7 @@ func (db *Db) Query(query string, args ...interface{}) (*sql.Rows, error) {
 query 执行语句
 args 查询参数
 */
-func (db *Db) Exec(sqlStr string, args ...interface{}) (sql.Result, error) {
+func (db *Db) exec(sqlStr string, args ...interface{}) (sql.Result, error) {
 	if db.err != nil {
 		return nil, db.err
 	}
