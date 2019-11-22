@@ -8,97 +8,99 @@ import (
 /**
 组合sql语句
 */
-func sqlCompose(sql ...string) string {
-	return strings.Join(sql, " ")
+func (db *Db) writeBuf(strs ...string) {
+	for _, s := range strs {
+		db.buffer.WriteString(s)
+	}
 }
 
-func (db *Db) addSelect() string {
-	return SELECT
+func (db *Db) addSelect() {
+	db.writeBuf(SELECT, SPACE)
 }
 
-func (db *Db) addUpdate() string {
-	return UPDATE
+func (db *Db) addUpdate() {
+	db.writeBuf(UPDATE, SPACE)
 }
 
-func (db *Db) addDelete() string {
-	return DELETE
+func (db *Db) addDelete() {
+	db.writeBuf(DELETE, SPACE)
 }
 
-func (db *Db) addInsert() string {
-	return INSERT
+func (db *Db) addInsert() {
+	db.writeBuf(INSERT, SPACE)
 }
 
-func (db *Db) addTable() string {
-	return db.table
+func (db *Db) addTable() {
+	db.writeBuf(db.table, SPACE)
 }
 
-func (db *Db) addFrom() string {
-	return FROM
+func (db *Db) addFrom() {
+	db.writeBuf(FROM, SPACE)
 }
 
-func (db *Db) addSet() string {
-	return SET
+func (db *Db) addSet() {
+	db.writeBuf(SET, SPACE)
 }
 
-func (db *Db) addSum() string {
+func (db *Db) addSum() {
 	if db.sum == "" {
-		return ""
+		return
 	}
-	return fmt.Sprintf("SUM(%s) AS sum", db.sum)
+	db.writeBuf("SUM(", db.sum, ") AS sum", SPACE)
 }
 
-func (db *Db) addMax() string {
+func (db *Db) addMax() {
 	if db.max == "" {
-		return ""
+		return
 	}
-	return fmt.Sprintf("MAX(%s) AS max", db.max)
+	db.writeBuf("MAX(", db.max, ") AS max", SPACE)
 }
 
-func (db *Db) addMin() string {
+func (db *Db) addMin() {
 	if db.min == "" {
-		return ""
+		return
 	}
-	return fmt.Sprintf("MIN(%s) AS min", db.min)
+	db.writeBuf("MIN(", db.min, ") AS min", SPACE)
 }
 
-func (db *Db) addCount() string {
-	return "COUNT(*) AS count"
+func (db *Db) addCount() {
+	db.writeBuf("COUNT(*) AS count", SPACE)
 }
 
 /**
 添加字段
 */
-func (db *Db) addFields() (sqlStr string) {
+func (db *Db) addFields() {
+	var sqlStr string
 	if len(db.fields) == 0 {
-		sqlStr = "*"
+		db.writeBuf("*", SPACE)
 	} else {
 		var fieldStr []string
 		for _, f := range db.fields {
 			fieldStr = append(fieldStr, f)
 		}
-		sqlStr = strings.Join(fieldStr, ",")
+		sqlStr = strings.Join(fieldStr, COMMA)
 	}
-	return
+	db.writeBuf(sqlStr, SPACE)
 }
 
 /**
 添加join
 */
-func (db *Db) addJoin() (sqlStr string) {
+func (db *Db) addJoin() {
 	if len(db.join) > 0 {
 		join := make([]string, 0, 2)
 		for _, j := range db.join {
 			join = append(join, fmt.Sprintf("%s %s %s %s", j.direction, j.table, ON, j.on))
 		}
-		sqlStr = strings.Join(join, " ")
+		db.writeBuf(strings.Join(join, SPACE), SPACE)
 	}
-	return
 }
 
 /**
 添加where条件
 */
-func (db *Db) addWhere() string {
+func (db *Db) addWhere() {
 	if len(db.whereRaw) > 0 || len(db.where) > 0 {
 		sqlTmp := make([]string, 0, 5)
 		if len(db.where) > 0 {
@@ -120,34 +122,30 @@ func (db *Db) addWhere() string {
 				sqlTmp = append(sqlTmp, w)
 			}
 		}
-
-		return fmt.Sprintf("%s %s", WHERE, strings.Join(sqlTmp, fmt.Sprintf(" %s ", AND)))
+		db.writeBuf(WHERE, SPACE, strings.Join(sqlTmp, fmt.Sprintf(" %s ", AND)), SPACE)
 	}
-	return ""
 }
 
 /**
 添加排序条件
 */
-func (db *Db) addOrderBy() string {
+func (db *Db) addOrderBy() {
 	if len(db.orderBy) > 0 {
 		order := make([]string, 0, 2)
 		for _, o := range db.orderBy {
 			order = append(order, fmt.Sprintf("%s %s", o.field, o.by))
 		}
-		return fmt.Sprintf("%s %s", ORDER_BY, strings.Join(order, ","))
+		db.writeBuf(ORDER_BY, SPACE, strings.Join(order, ","), SPACE)
 	}
-	return ""
 }
 
 /**
 添加limit
 */
-func (db *Db) addLimit() string {
+func (db *Db) addLimit() {
 	if db.limit > 0 {
-		return fmt.Sprintf("%s %d", LIMIT, db.limit)
+		db.writeBuf(LIMIT, SPACE, string(db.limit))
 	}
-	return ""
 }
 
 /**
@@ -155,73 +153,63 @@ func (db *Db) addLimit() string {
 */
 func (db *Db) whereToSql() string {
 	db.check()
-	sqlStr := sqlCompose(
-		db.addSelect(),
-		db.addFields(),
-		db.addFrom(),
-		db.addTable(),
-		db.addJoin(),
-		db.addWhere(),
-		db.addOrderBy(),
-		db.addLimit(),
-	)
-	return retSql(sqlStr)
+	db.addSelect()
+	db.addFields()
+	db.addFrom()
+	db.addTable()
+	db.addJoin()
+	db.addWhere()
+	db.addOrderBy()
+	db.addLimit()
+	return db.buffer.String()
 }
 
 func (db *Db) countToSql() string {
 	db.check()
-	sqlStr := sqlCompose(
-		db.addSelect(),
-		db.addCount(),
-		db.addFrom(),
-		db.addTable(),
-		db.addJoin(),
-		db.addWhere(),
-	)
-	return retSql(sqlStr)
+	db.addSelect()
+	db.addCount()
+	db.addFrom()
+	db.addTable()
+	db.addJoin()
+	db.addWhere()
+	return db.buffer.String()
 }
 
 func (db *Db) sumToSql() string {
 	db.check()
-	sqlStr := sqlCompose(
-		db.addSelect(),
-		db.addSum(),
-		db.addFrom(),
-		db.addTable(),
-		db.addJoin(),
-		db.addWhere(),
-	)
-	return retSql(sqlStr)
+	db.addSelect()
+	db.addSum()
+	db.addFrom()
+	db.addTable()
+	db.addJoin()
+	db.addWhere()
+	return db.buffer.String()
 }
 
 func (db *Db) maxToSql() string {
 	db.check()
-	sqlStr := sqlCompose(
-		db.addSelect(),
-		db.addMax(),
-		db.addFrom(),
-		db.addTable(),
-		db.addJoin(),
-		db.addWhere(),
-		db.addOrderBy(),
-		db.addLimit(),
-	)
-	return retSql(sqlStr)
+	db.addSelect()
+	db.addMax()
+	db.addFrom()
+	db.addTable()
+	db.addJoin()
+	db.addWhere()
+	db.addOrderBy()
+	db.addLimit()
+	return db.buffer.String()
 }
 
 func (db *Db) minToSql() string {
 	db.check()
-	sqlStr := sqlCompose(
-		db.addSelect(),
-		db.addMin(),
-		db.addFrom(),
-		db.addTable(),
-		db.addJoin(),
-		db.addWhere(),
-		db.addOrderBy(),
-		db.addLimit(),
-	)
-	return retSql(sqlStr)
+	db.addSelect()
+	db.addMin()
+	db.addFrom()
+	db.addTable()
+	db.addJoin()
+	db.addWhere()
+	db.addOrderBy()
+	db.addLimit()
+	return db.buffer.String()
 }
 
 func (db *Db) insertToStrAndArr() (string, []interface{}) {
@@ -235,7 +223,7 @@ func (db *Db) insertToStrAndArr() (string, []interface{}) {
 		vals = append(vals, v)
 	}
 
-	keysToStr := db.addTable() + "(" + strings.Join(keys, ", ") + ")"
+	keysToStr := db.table + "(" + strings.Join(keys, ", ") + ")"
 	keyValsToStr := " VALUES(" + strings.Join(keyVals, ", ") + ")"
 	insertStr := keysToStr + keyValsToStr
 
@@ -258,25 +246,22 @@ func (db *Db) insertToSql() (sql string, arr []interface{}) {
 	db.check()
 	insertStr, vals := db.insertToStrAndArr()
 
-	sqlStr := sqlCompose(
-		db.addInsert(),
-		insertStr,
-	)
-	return retSql(sqlStr), vals
+	db.addInsert()
+	db.writeBuf(insertStr, SPACE)
+
+	return db.buffer.String(), vals
 }
 
 func (db *Db) updateToSql() (sql string, arr []interface{}) {
 	db.check()
 	updateStr, vals := db.updateToStrAndArr()
 
-	sqlStr := sqlCompose(
-		db.addUpdate(),
-		db.addTable(),
-		db.addSet(),
-		updateStr,
-		db.addWhere(),
-	)
-	return retSql(sqlStr), vals
+	db.addUpdate()
+	db.addTable()
+	db.addSet()
+	db.writeBuf(updateStr, SPACE)
+	db.addWhere()
+	return retSql(db.buffer.String()), vals
 }
 
 func retSql(sqlStr string) string {

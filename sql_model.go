@@ -1,6 +1,9 @@
 package corm
 
-import "database/sql"
+import (
+	"bytes"
+	"database/sql"
+)
 
 type where struct {
 	field          string
@@ -46,4 +49,6 @@ type Db struct {
 	min      string
 	insert   map[string]interface{}
 	update   map[string]interface{}
+	compose  []string
+	buffer   bytes.Buffer
 }

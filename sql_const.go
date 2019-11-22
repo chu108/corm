@@ -21,4 +21,6 @@ const (
 	HAVING     = "HAVING"
 	BETWEEN    = "BETWEEN"
 	SET        = "SET"
+	SPACE      = " "
+	COMMA      = ","
 )
