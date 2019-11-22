@@ -17,7 +17,7 @@ func (db *Db) queryRow(query string, args []interface{}, scan ...interface{}) er
 		return db.err
 	}
 	defer db.clear()
-
+	fmt.Println(query)
 	if db.tx != nil {
 		return db.tx.QueryRow(query, args...).Scan(scan...)
 	}
@@ -121,4 +121,6 @@ func (db *Db) clear() {
 
 	db.limit = 0
 	db.offset = 0
+
+	db.err = nil
 }

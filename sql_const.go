@@ -23,4 +23,5 @@ const (
 	SET        = "SET"
 	SPACE      = " "
 	COMMA      = ","
+	QUES       = "?"
 )

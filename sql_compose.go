@@ -91,7 +91,7 @@ func (db *Db) addJoin() {
 	if len(db.join) > 0 {
 		join := make([]string, 0, 2)
 		for _, j := range db.join {
-			join = append(join, fmt.Sprintf("%s %s %s %s", j.direction, j.table, ON, j.on))
+			join = append(join, strings.Join([]string{j.direction, j.table, ON, j.on}, SPACE))
 		}
 		db.writeBuf(strings.Join(join, SPACE), SPACE)
 	}
@@ -107,13 +107,13 @@ func (db *Db) addWhere() {
 			for _, w := range db.where {
 				switch w.operator {
 				case IN, NOT_IN:
-					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s(%s)", w.field, w.operator, arrayToStrPlace(w.conditionArray)))
+					sqlTmp = append(sqlTmp, w.field+SPACE+w.operator+"("+arrayToStrPlace(w.conditionArray)+")")
 				case LIKE, NOT_LIKE:
-					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s %s", w.field, w.operator, "?"))
+					sqlTmp = append(sqlTmp, w.field+SPACE+w.operator+SPACE+QUES)
 				case BETWEEN:
-					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s %s AND %s", w.field, w.operator, "?", "?"))
+					sqlTmp = append(sqlTmp, w.field+SPACE+w.operator+SPACE+QUES+SPACE+AND+SPACE+QUES)
 				default:
-					sqlTmp = append(sqlTmp, fmt.Sprintf("%s %s %s", w.field, w.operator, "?"))
+					sqlTmp = append(sqlTmp, w.field+SPACE+w.operator+SPACE+QUES)
 				}
 			}
 		}
@@ -122,7 +122,7 @@ func (db *Db) addWhere() {
 				sqlTmp = append(sqlTmp, w)
 			}
 		}
-		db.writeBuf(WHERE, SPACE, strings.Join(sqlTmp, fmt.Sprintf(" %s ", AND)), SPACE)
+		db.writeBuf(WHERE, SPACE, strings.Join(sqlTmp, " AND "), SPACE)
 	}
 }
 
@@ -133,9 +133,9 @@ func (db *Db) addOrderBy() {
 	if len(db.orderBy) > 0 {
 		order := make([]string, 0, 2)
 		for _, o := range db.orderBy {
-			order = append(order, fmt.Sprintf("%s %s", o.field, o.by))
+			order = append(order, o.field+SPACE+o.by)
 		}
-		db.writeBuf(ORDER_BY, SPACE, strings.Join(order, ","), SPACE)
+		db.writeBuf(ORDER_BY, SPACE, strings.Join(order, COMMA), SPACE)
 	}
 }
 
@@ -235,7 +235,7 @@ func (db *Db) updateToStrAndArr() (string, []interface{}) {
 	var vals []interface{}
 
 	for k, v := range db.update {
-		keys = append(keys, fmt.Sprintf("%s = ?", k))
+		keys = append(keys, k+"=?")
 		vals = append(vals, v)
 	}
 
