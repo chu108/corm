@@ -2,6 +2,7 @@ package corm
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -144,7 +145,7 @@ func (db *Db) addOrderBy() {
 */
 func (db *Db) addLimit() {
 	if db.limit > 0 {
-		db.writeBuf(LIMIT, SPACE, string(db.limit))
+		db.writeBuf(LIMIT, SPACE, strconv.Itoa(db.limit))
 	}
 }
 
@@ -235,11 +236,11 @@ func (db *Db) updateToStrAndArr() (string, []interface{}) {
 	var vals []interface{}
 
 	for k, v := range db.update {
-		keys = append(keys, k+"=?")
+		keys = append(keys, k+" = ?")
 		vals = append(vals, v)
 	}
 
-	return strings.Join(keys, ", "), vals
+	return strings.Join(keys, COMMA), vals
 }
 
 func (db *Db) insertToSql() (sql string, arr []interface{}) {

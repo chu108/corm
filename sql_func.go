@@ -1,6 +1,7 @@
 package corm
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"github.com/pkg/errors"
@@ -17,7 +18,7 @@ func (db *Db) queryRow(query string, args []interface{}, scan ...interface{}) er
 		return db.err
 	}
 	defer db.clear()
-	fmt.Println(query)
+
 	if db.tx != nil {
 		return db.tx.QueryRow(query, args...).Scan(scan...)
 	}
@@ -85,6 +86,12 @@ func errs(err error) error {
 	return err
 }
 
+func clone(oldDb *Db) *Db {
+	dbNew := new(Db)
+	*dbNew = *oldDb
+	return dbNew
+}
+
 func (db *Db) pushErr(err error) {
 	if err != nil {
 		db.err = fmt.Errorf("%w", err)
@@ -122,5 +129,6 @@ func (db *Db) clear() {
 	db.limit = 0
 	db.offset = 0
 
+	db.buffer = bytes.Buffer{}
 	db.err = nil
 }

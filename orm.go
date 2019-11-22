@@ -338,9 +338,7 @@ func (db *Db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64
 	db.offset = (page - 1) * pageCount
 	db.limit = pageCount
 
-	dbGet := new(Db)
-	*dbGet = *db
-
+	dbGet := clone(db)
 	//总记录数
 	totalCount, err := db.Count()
 	if err != nil {
