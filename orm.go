@@ -337,14 +337,14 @@ callable 回调函数
 func (db *Db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64, error) {
 	db.offset = (page - 1) * pageCount
 	db.limit = pageCount
-
-	dbGet := clone(db)
+	//var totalCount int64
+	//var err error
 	//总记录数
 	totalCount, err := db.Count()
 	if err != nil {
 		return 0, err
 	}
-	err = dbGet.Get(callable)
+	err = db.Get(callable)
 	if err != nil {
 		return 0, err
 	}

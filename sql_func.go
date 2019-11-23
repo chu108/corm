@@ -17,9 +17,9 @@ func (db *Db) queryRow(query string, args []interface{}, scan ...interface{}) er
 	if db.err != nil {
 		return db.err
 	}
-	defer db.clear()
 
 	if db.tx != nil {
+		defer db.clear()
 		return db.tx.QueryRow(query, args...).Scan(scan...)
 	}
 	return db.conn.QueryRow(query, args...).Scan(scan...)
@@ -33,9 +33,9 @@ func (db *Db) query(query string, args ...interface{}) (*sql.Rows, error) {
 	if db.err != nil {
 		return nil, db.err
 	}
-	defer db.clear()
 
 	if db.tx != nil {
+		defer db.clear()
 		return db.tx.Query(query, args...)
 	}
 	return db.conn.Query(query, args...)
@@ -49,12 +49,12 @@ func (db *Db) exec(sqlStr string, args ...interface{}) (sql.Result, error) {
 	if db.err != nil {
 		return nil, db.err
 	}
-	defer db.clear()
 
 	var stmt *sql.Stmt
 	var err error
 
 	if db.tx != nil {
+		defer db.clear()
 		stmt, err = db.tx.Prepare(sqlStr)
 	} else {
 		stmt, err = db.conn.Prepare(sqlStr)
