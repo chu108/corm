@@ -1,6 +1,6 @@
 ![](static/corm.png) 
 <br>
-corm是一个不使用反射的orm。golang版本: > 1.13。  
+corm是一个不使用反射的orm, golang版本: > 1.13.
 <br>
 ![](https://img.shields.io/badge/corm-tools-orange?style=flat-square&logo=appveyor)
 ![](https://img.shields.io/badge/release-linux%2Cmac%2Cwin-blue?style=flat-square&logo=appveyor)
