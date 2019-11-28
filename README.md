@@ -1,3 +1,11 @@
+![](https://img.shields.io/badge/corm-tools-orange?style=flat-square&logo=appveyor)
+![](https://img.shields.io/badge/release-linux%2Cmac%2Cwin-blue?style=flat-square&logo=appveyor)
+![](https://img.shields.io/badge/corm-3.0-Stable)
+![](https://img.shields.io/github/stars/chu108/corm)
+![](https://img.shields.io/github/issues/chu108/corm)
+![](https://img.shields.io/github/forks/chu108/corm)
+![](https://img.shields.io/github/license/chu108/corm)
+
 # corm
 
 corm是一个伪ORM，目的为了简化操作，不损失性能，不使用反射，操作起来更简便。
