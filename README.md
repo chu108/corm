@@ -1,4 +1,4 @@
-![](static/CORM.png) 
+![](static/corm.png) 
 <br>
 corm是一个不使用反射的orm。golang版本: > 1.13。  
 <br>
