@@ -34,6 +34,7 @@ type Db struct {
 	tx       *sql.Tx
 	err      error
 	table    string
+	force    string
 	join     []join
 	fields   []string
 	where    []where

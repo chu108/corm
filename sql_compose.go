@@ -33,6 +33,7 @@ func (db *Db) addInsert() {
 
 func (db *Db) addTable() {
 	db.writeBuf(db.table, SPACE)
+	db.writeBuf(db.force, SPACE)
 }
 
 func (db *Db) addFrom() {

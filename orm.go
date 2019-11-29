@@ -167,6 +167,17 @@ func (db *Db) WhereBetween(field string, startCondition interface{}, endConditio
 	return db
 }
 
+/*
+强制索引
+index 索引名称
+*/
+func (db *Db) Force(index string) *Db {
+	if index != "" {
+		db.force = "FORCE INDEX(`" + index + "`)"
+	}
+	return db
+}
+
 /**
 查询结果过滤 Having ，格式：Having("name", "=", "张三").Having("age", ">", 18)
 Having 条件字符串

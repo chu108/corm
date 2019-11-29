@@ -14,6 +14,7 @@ corm是一个不使用反射的orm, golang版本: > 1.13
 - 查询
     - Select 普通查询
     - SelectRaw 原生查询
+    - Force 强制索引
 - where 条件
     - Where
     - WhereRaw 原生where条件
