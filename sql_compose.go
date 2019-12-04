@@ -148,6 +148,9 @@ func (db *Db) addLimit() {
 	if db.limit > 0 {
 		db.writeBuf(LIMIT, SPACE, strconv.Itoa(db.limit))
 	}
+	if db.offset > 0 {
+		db.writeBuf(SPACE, OFFSET, SPACE, strconv.Itoa(db.offset))
+	}
 }
 
 /**
