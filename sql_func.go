@@ -86,9 +86,9 @@ func errs(err error) error {
 	return err
 }
 
-func clone(oldDb *Db) *Db {
+func (db *Db) clone() *Db {
 	dbNew := new(Db)
-	*dbNew = *oldDb
+	*dbNew = *db
 	return dbNew
 }
 

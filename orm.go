@@ -350,7 +350,7 @@ func (db *Db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64
 	db.limit = pageCount
 
 	//总记录数
-	totalCount, err := clone(db).Count()
+	totalCount, err := db.clone().Count()
 	if err != nil {
 		return 0, err
 	}
