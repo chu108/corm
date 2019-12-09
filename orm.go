@@ -141,6 +141,20 @@ func (db *Db) WhereLike(field string, condition string) *Db {
 }
 
 /**
+查询 like 条件，格式：WhereLike("name", "张")
+where 条件字符串
+*/
+func (db *Db) WhereLikeLeft(field string, condition string) *Db {
+	condition = condition + "%"
+	db.where = append(db.where, where{
+		field:     field,
+		operator:  LIKE,
+		condition: condition,
+	})
+	return db
+}
+
+/**
 查询 not like 条件，格式：WhereNotLike("name", "张")
 where 条件字符串
 */
@@ -350,7 +364,7 @@ func (db *Db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64
 	db.limit = pageCount
 
 	//总记录数
-	totalCount, err := db.clone().Count()
+	totalCount, err := db.Clone().Count()
 	if err != nil {
 		return 0, err
 	}
@@ -491,4 +505,11 @@ func (db *Db) Transaction(callable func(dbTrans *Db) error) error {
 	}
 
 	return nil
+}
+
+//克隆当前对象
+func (db *Db) Clone() *Db {
+	dbNew := new(Db)
+	*dbNew = *db
+	return dbNew
 }

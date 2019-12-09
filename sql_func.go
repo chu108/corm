@@ -86,12 +86,6 @@ func errs(err error) error {
 	return err
 }
 
-func (db *Db) clone() *Db {
-	dbNew := new(Db)
-	*dbNew = *db
-	return dbNew
-}
-
 func (db *Db) pushErr(err error) {
 	if err != nil {
 		db.err = fmt.Errorf("%w", err)
