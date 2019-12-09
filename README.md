@@ -10,6 +10,11 @@ corm是一个不使用反射的orm, golang版本: > 1.13
 ![](https://img.shields.io/github/forks/chu108/corm)
 ![](https://img.shields.io/github/license/chu108/corm)
 
+## 安装
+```go
+go get -u github.com/chu108/corm
+```
+
 ## 支持的操作
 - 查询
     - Select 普通查询
