@@ -3,7 +3,6 @@ package corm
 import (
 	"bytes"
 	"database/sql"
-	"fmt"
 	"github.com/pkg/errors"
 	"strings"
 )
@@ -14,8 +13,8 @@ args 查询参数
 scan 结果绑定参数
 */
 func (db *Db) queryRow(query string, args []interface{}, scan ...interface{}) error {
-	if db.err != nil {
-		return db.err
+	if db.getErr() != nil {
+		return db.getErr()
 	}
 
 	if db.tx != nil {
@@ -30,8 +29,8 @@ query 查询语句
 args 查询参数
 */
 func (db *Db) query(query string, args ...interface{}) (*sql.Rows, error) {
-	if db.err != nil {
-		return nil, db.err
+	if db.getErr() != nil {
+		return nil, db.getErr()
 	}
 
 	if db.tx != nil {
@@ -46,8 +45,8 @@ query 执行语句
 args 查询参数
 */
 func (db *Db) exec(sqlStr string, args ...interface{}) (sql.Result, error) {
-	if db.err != nil {
-		return nil, db.err
+	if db.getErr() != nil {
+		return nil, db.getErr()
 	}
 
 	var stmt *sql.Stmt
@@ -88,12 +87,13 @@ func errs(err error) error {
 
 func (db *Db) pushErr(err error) {
 	if err != nil {
-		db.err = fmt.Errorf("%w", err)
+		db.err = append(db.err, err)
+		//db.err = fmt.Errorf("%w", err)
 	}
 }
 
 func (db *Db) getErr() error {
-	return db.err
+	return db.err[0]
 }
 
 func (db *Db) check() {

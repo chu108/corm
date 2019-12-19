@@ -32,7 +32,7 @@ type orderBy struct {
 type Db struct {
 	conn     *sql.DB
 	tx       *sql.Tx
-	err      error
+	err      []error
 	table    string
 	force    string
 	join     []join
