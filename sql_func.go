@@ -93,7 +93,10 @@ func (db *Db) pushErr(err error) {
 }
 
 func (db *Db) getErr() error {
-	return db.err[0]
+	if len(db.err) > 0 {
+		return db.err[0]
+	}
+	return nil
 }
 
 func (db *Db) check() {
