@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 )
 
 /**
@@ -325,6 +326,18 @@ func (db *Db) ValueInt(field string) (int, error) {
 }
 
 /**
+查询某个字段，以int64数字形式返回
+*/
+func (db *Db) ValueInt64(field string) (int64, error) {
+	db.fields = nil
+	db.Select(field)
+
+	var value int64
+	err := db.First(&value)
+	return value, err
+}
+
+/**
 查询某个字段，以Float形式返回
 */
 func (db *Db) ValueFloat(field string) (float64, error) {
@@ -332,6 +345,18 @@ func (db *Db) ValueFloat(field string) (float64, error) {
 	db.Select(field)
 
 	var value float64
+	err := db.First(&value)
+	return value, err
+}
+
+/**
+查询某个字段，以时间格式返回
+*/
+func (db *Db) ValueTime(field string) (time.Time, error) {
+	db.fields = nil
+	db.Select(field)
+
+	var value time.Time
 	err := db.First(&value)
 	return value, err
 }
