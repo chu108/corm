@@ -129,3 +129,15 @@ func (db *Db) clear() {
 	db.buffer = bytes.Buffer{}
 	db.err = nil
 }
+
+//检测where条件的参数类型是否正确
+func checkWhereIn(condition []interface{}) bool {
+	if len(condition) > 0 {
+		switch condition[0].(type) {
+		case string, int, int32, int64:
+		default:
+			return true
+		}
+	}
+	return false
+}

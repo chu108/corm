@@ -106,6 +106,9 @@ func (db *Db) WhereRaw(where string) *Db {
 where 条件字符串
 */
 func (db *Db) WhereIn(field string, condition ...interface{}) *Db {
+	if checkWhereIn(condition) {
+		db.pushErr(errors.New("WhereIn 参数类型错误"))
+	}
 	db.where = append(db.where, where{
 		field:          field,
 		operator:       IN,
@@ -119,6 +122,9 @@ func (db *Db) WhereIn(field string, condition ...interface{}) *Db {
 where 条件字符串
 */
 func (db *Db) WhereNotIn(field string, condition ...interface{}) *Db {
+	if checkWhereIn(condition) {
+		db.pushErr(errors.New("WhereNotIn 参数类型错误"))
+	}
 	db.where = append(db.where, where{
 		field:          field,
 		operator:       NOT_IN,
