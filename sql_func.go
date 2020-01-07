@@ -130,7 +130,7 @@ func (db *Db) clear() {
 	db.err = nil
 }
 
-//检测where条件的参数类型是否正确
+//检测whereIn条件的参数类型是否正确
 func checkWhereIn(condition []interface{}) bool {
 	if len(condition) > 0 {
 		switch condition[0].(type) {
