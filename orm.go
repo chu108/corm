@@ -61,6 +61,13 @@ func (db *Db) Where(field, operator string, condition interface{}) *Db {
 	return db
 }
 
+/*
+等于
+*/
+func (db *Db) WhereEqual(field string, condition interface{}) *Db {
+	return db.Where(field, "=", condition)
+}
+
 /**
 将数字字符串转换成INT
 */
