@@ -17,6 +17,7 @@ const (
 	LIKE       = "LIKE"
 	NOT_LIKE   = "NOT LIKE"
 	ORDER_BY   = "ORDER BY"
+	GROUP_BY   = "GROUP BY"
 	LIMIT      = "LIMIT"
 	OFFSET     = "OFFSET"
 	HAVING     = "HAVING"
