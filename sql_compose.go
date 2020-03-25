@@ -142,6 +142,19 @@ func (db *Db) addOrderBy() {
 }
 
 /**
+添加分组条件
+*/
+func (db *Db) addGroupBy() {
+	if len(db.groupBy) > 0 {
+		group := make([]string, 0, 2)
+		for _, o := range db.groupBy {
+			group = append(group, o)
+		}
+		db.writeBuf(GROUP_BY, SPACE, strings.Join(group, COMMA), SPACE)
+	}
+}
+
+/**
 添加limit
 */
 func (db *Db) addLimit() {
@@ -164,6 +177,7 @@ func (db *Db) whereToSql() string {
 	db.addTable()
 	db.addJoin()
 	db.addWhere()
+	db.addGroupBy()
 	db.addOrderBy()
 	db.addLimit()
 	return db.buffer.String()
