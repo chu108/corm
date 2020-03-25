@@ -23,8 +23,9 @@ func GetDb(conn *sql.DB) *Db {
 table 表名
 */
 func (db *Db) Tab(table string) *Db {
-	db.table = table
-	return db
+	newDB := db.Clone()
+	newDB.table = table
+	return newDB
 }
 
 /**
