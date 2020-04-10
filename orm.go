@@ -23,8 +23,7 @@ func GetDb(conn *sql.DB) *Db {
 table 表名
 */
 func (db *Db) Tab(table string) *Db {
-	db.table = table
-	return db
+	return &Db{conn: db.conn, tx: db.tx, table: table}
 }
 
 /**
@@ -402,7 +401,7 @@ func (db *Db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64
 	db.limit = pageCount
 
 	//总记录数
-	totalCount, err := db.Clone().Count()
+	totalCount, err := db.Count()
 	if err != nil {
 		return 0, err
 	}
@@ -461,6 +460,7 @@ func (db *Db) Count() (int64, error) {
 	if errs(err) != nil {
 		return 0, err
 	}
+
 	return count.Int64, nil
 }
 
@@ -543,11 +543,4 @@ func (db *Db) Transaction(callable func(dbTrans *Db) error) error {
 	}
 
 	return nil
-}
-
-//克隆当前对象
-func (db *Db) Clone() *Db {
-	dbNew := new(Db)
-	*dbNew = *db
-	return dbNew
 }

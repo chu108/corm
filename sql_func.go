@@ -1,6 +1,7 @@
 package corm
 
 import (
+	"bytes"
 	"database/sql"
 	"github.com/pkg/errors"
 	"strings"
@@ -102,6 +103,7 @@ func (db *Db) check() {
 	if db.table == "" {
 		db.pushErr(errors.New("未定义数据表"))
 	}
+	db.buffer = bytes.Buffer{}
 }
 
 //同一个实例多次调用，清除条件
