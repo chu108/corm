@@ -378,5 +378,4 @@ func echoErr(err error) {
 ## 问题
 ```go
 1、Where("pro.accumulativeNumber", "<", "pro.raisefundsNumber") 失效并无法获取数据
-2、sync.pool 对象池
 ```
