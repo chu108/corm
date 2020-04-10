@@ -548,6 +548,6 @@ func (db *Db) Transaction(callable func(dbTrans *Db) error) error {
 //克隆当前对象
 func (db *Db) Clone() *Db {
 	dbNew := new(Db)
-	*dbNew = Db{conn: db.conn, tx: db.tx}
+	*dbNew = *db
 	return dbNew
 }
