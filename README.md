@@ -375,3 +375,9 @@ func echoErr(err error) {
 }
 
 ```
+## 问题
+```go
+1、Where("pro.accumulativeNumber", "<", "pro.raisefundsNumber") 失效并无法获取数据
+2、sync.pool 对象池
+3、对象clone为克隆，slice、map 只克隆了指针，数据指向还是一样的
+```

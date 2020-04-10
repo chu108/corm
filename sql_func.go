@@ -1,7 +1,6 @@
 package corm
 
 import (
-	"bytes"
 	"database/sql"
 	"github.com/pkg/errors"
 	"strings"
@@ -107,27 +106,11 @@ func (db *Db) check() {
 
 //同一个实例多次调用，清除条件
 func (db *Db) clear() {
-	db.table = ""
-	db.sum = ""
-	db.count = ""
-	db.max = ""
-	db.min = ""
-
-	db.join = nil
-	db.fields = nil
-	db.where = nil
-	db.whereRaw = nil
-	db.orderBy = nil
-	db.groupBy = nil
-	db.having = nil
-	db.insert = nil
-	db.update = nil
-
-	db.limit = 0
-	db.offset = 0
-
-	db.buffer = bytes.Buffer{}
-	db.err = nil
+	*db = Db{conn: db.conn, tx: db.tx}
+	//db.table, db.sum, db.count, db.max, db.min = "", "", "", "", ""
+	//db.join, db.fields, db.where, db.whereRaw, db.orderBy, db.groupBy, db.having, db.insert, db.update, db.err = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+	//db.limit, db.offset = 0, 0
+	//db.buffer = bytes.Buffer{}
 }
 
 //检测whereIn条件的参数类型是否正确

@@ -23,9 +23,8 @@ func GetDb(conn *sql.DB) *Db {
 table 表名
 */
 func (db *Db) Tab(table string) *Db {
-	newDB := db.Clone()
-	newDB.table = table
-	return newDB
+	db.table = table
+	return db
 }
 
 /**
@@ -549,6 +548,6 @@ func (db *Db) Transaction(callable func(dbTrans *Db) error) error {
 //克隆当前对象
 func (db *Db) Clone() *Db {
 	dbNew := new(Db)
-	*dbNew = *db
+	*dbNew = Db{conn: db.conn, tx: db.tx}
 	return dbNew
 }
