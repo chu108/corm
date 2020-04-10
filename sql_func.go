@@ -13,6 +13,7 @@ args 查询参数
 scan 结果绑定参数
 */
 func (db *Db) queryRow(query string, args []interface{}, scan ...interface{}) error {
+	defer db.putPool()
 	if db.getErr() != nil {
 		return db.getErr()
 	}
@@ -29,6 +30,7 @@ query 查询语句
 args 查询参数
 */
 func (db *Db) query(query string, args ...interface{}) (*sql.Rows, error) {
+	defer db.putPool()
 	if db.getErr() != nil {
 		return nil, db.getErr()
 	}
@@ -45,6 +47,7 @@ query 执行语句
 args 查询参数
 */
 func (db *Db) exec(sqlStr string, args ...interface{}) (sql.Result, error) {
+	defer db.putPool()
 	if db.getErr() != nil {
 		return nil, db.getErr()
 	}
@@ -108,11 +111,11 @@ func (db *Db) check() {
 
 //同一个实例多次调用，清除条件
 func (db *Db) clear() {
-	*db = Db{conn: db.conn, tx: db.tx}
-	//db.table, db.sum, db.count, db.max, db.min = "", "", "", "", ""
-	//db.join, db.fields, db.where, db.whereRaw, db.orderBy, db.groupBy, db.having, db.insert, db.update, db.err = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
-	//db.limit, db.offset = 0, 0
-	//db.buffer = bytes.Buffer{}
+	//*db = Db{conn: db.conn, tx: db.tx}
+	db.table, db.sum, db.count, db.max, db.min = "", "", "", "", ""
+	db.join, db.fields, db.where, db.whereRaw, db.orderBy, db.groupBy, db.having, db.insert, db.update, db.err = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+	db.limit, db.offset = 0, 0
+	db.buffer = bytes.Buffer{}
 }
 
 //检测whereIn条件的参数类型是否正确
@@ -125,4 +128,21 @@ func checkWhereIn(condition []interface{}) bool {
 		}
 	}
 	return false
+}
+
+//将对象放回池中
+func (db *Db) putPool() {
+	db.clear()
+	dbPool.Put(db)
+}
+
+/**
+克隆DB对象
+注意：此方法只是结构的浅拷贝，只能拷贝slice、map的指针，并不能拷贝值，只能用在相同条件下的不同操作
+	 克隆后不能修改对象的slice及map类型成员
+*/
+func (db *Db) clone() *Db {
+	newDB := dbPool.Get().(*Db)
+	*newDB = *db
+	return newDB
 }

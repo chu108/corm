@@ -5,15 +5,26 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
+
+var dbPool sync.Pool
+
+func init() {
+	dbPool = sync.Pool{
+		New: func() interface{} {
+			return new(Db)
+		},
+	}
+}
 
 /**
 获取一个新的DB
 conn 数据库连接
 */
 func GetDb(conn *sql.DB) *Db {
-	db := new(Db)
+	db := dbPool.Get().(*Db)
 	db.conn = conn
 	return db
 }
@@ -23,7 +34,11 @@ func GetDb(conn *sql.DB) *Db {
 table 表名
 */
 func (db *Db) Tab(table string) *Db {
-	return &Db{conn: db.conn, tx: db.tx, table: table}
+	newDB := dbPool.Get().(*Db)
+	newDB.conn = db.conn
+	newDB.tx = db.tx
+	newDB.table = table
+	return newDB
 }
 
 /**
@@ -399,9 +414,8 @@ callable 回调函数
 func (db *Db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64, error) {
 	db.offset = (page - 1) * pageCount
 	db.limit = pageCount
-
 	//总记录数
-	totalCount, err := db.Count()
+	totalCount, err := db.clone().Count()
 	if err != nil {
 		return 0, err
 	}
