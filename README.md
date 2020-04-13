@@ -21,7 +21,7 @@ go get -u github.com/chu108/corm
     - SelectRaw 原生查询
     - Force 强制索引
 - where 条件
-    - Where
+    - Where 注意：条件参数不能写字段名，如：where("table.money", ">", "table.total")，跟语言无关，SQL预编译问题
     - WhereRaw 原生where条件
     - WhereIn
     - WhereNotIn
