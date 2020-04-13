@@ -373,9 +373,3 @@ func echoErr(err error) {
 		panic(err)
 	}
 }
-
-```
-## 问题
-```go
-1、Where("pro.accumulativeNumber", "<", "pro.raisefundsNumber") 失效并无法获取数据
-```
