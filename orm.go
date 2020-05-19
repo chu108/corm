@@ -544,10 +544,12 @@ func (db *Db) Transaction(callable func(dbTrans *Db) error) error {
 	}
 
 	db.tx = tx
-
+	defer func() {
+		db.tx = nil
+	}()
 	err = callable(db)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 

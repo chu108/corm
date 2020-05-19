@@ -113,7 +113,7 @@ func (db *Db) check() {
 func (db *Db) clear() {
 	//*db = Db{conn: db.conn, tx: db.tx}
 	db.table, db.sum, db.count, db.max, db.min = "", "", "", "", ""
-	db.join, db.fields, db.where, db.whereRaw, db.orderBy, db.groupBy, db.having, db.insert, db.update, db.err = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+	db.join, db.fields, db.where, db.whereRaw, db.orderBy, db.groupBy, db.having, db.insert, db.update, db.err, db.tx = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
 	db.limit, db.offset = 0, 0
 	db.buffer = bytes.Buffer{}
 }
