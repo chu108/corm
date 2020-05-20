@@ -1,4 +1,4 @@
-![](static/corm.png) 
+![](./static/corm.png) 
 <br>
 corm是一个不使用反射的orm
 <br><br>
@@ -49,7 +49,9 @@ go get -u github.com/chu108/corm
     - Exists 是否存在
     - ValueStr 以 string 形式返回指定字段
     - ValueInt 以 int 形式返回指定字段
+    - ValueInt64 以 int64 形式返回指定字段
     - ValueFloat 以 float64 形式返回指定字段
+    - ValueTime 以 time.Time 形式返回指定字段
 - 聚合查询
     - Sum
     - Max
