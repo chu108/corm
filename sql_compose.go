@@ -191,6 +191,7 @@ func (db *Db) countToSql() string {
 	db.addTable()
 	db.addJoin()
 	db.addWhere()
+	db.addLimit()
 	return db.buffer.String()
 }
 

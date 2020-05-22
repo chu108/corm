@@ -482,6 +482,7 @@ func (db *Db) Count() (int64, error) {
 Exists 查询数据是否存在
 */
 func (db *Db) Exists() (bool, error) {
+	db.limit = 1
 	count, err := db.Count()
 	if err != nil {
 		return false, err
