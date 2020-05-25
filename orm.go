@@ -67,6 +67,7 @@ operator 条件符号 >、<、=、<>、like、in 等
 condition 条件值
 */
 func (db *Db) Where(field, operator string, condition interface{}) *Db {
+
 	db.where = append(db.where, where{
 		field:     field,
 		operator:  operator,
@@ -75,11 +76,34 @@ func (db *Db) Where(field, operator string, condition interface{}) *Db {
 	return db
 }
 
+/**
+查询条件，过滤零值条件，格式：Where("id", ">", 100).where("name", "=", "张三")
+field 查询字段
+operator 条件符号 >、<、=、<>、like、in 等
+condition 条件值
+*/
+func (db *Db) WhereNoZero(field, operator string, condition interface{}) *Db {
+	if IsDefaultValue(condition) {
+		return db
+	}
+	return db.Where(field, operator, condition)
+}
+
 /*
 等于
 */
 func (db *Db) WhereEqual(field string, condition interface{}) *Db {
 	return db.Where(field, "=", condition)
+}
+
+/*
+等于:过滤零值
+*/
+func (db *Db) WhereEqualNoZero(field string, condition interface{}) *Db {
+	if IsDefaultValue(condition) {
+		return db
+	}
+	return db.WhereEqual(field, condition)
 }
 
 /**
@@ -98,6 +122,16 @@ func (db *Db) WhereStrToInt(field, operator string, condition string) *Db {
 }
 
 /**
+将数字字符串转换成INT:过滤零值
+*/
+func (db *Db) WhereStrToIntNoZero(field, operator string, condition string) *Db {
+	if IsDefaultValue(condition) {
+		return db
+	}
+	return db.WhereStrToInt(field, operator, condition)
+}
+
+/**
 将int64转换成字符串
 */
 func (db *Db) WhereInt64ToStr(field, operator string, condition int64) *Db {
@@ -106,11 +140,31 @@ func (db *Db) WhereInt64ToStr(field, operator string, condition int64) *Db {
 }
 
 /**
+将int64转换成字符串:过滤零值
+*/
+func (db *Db) WhereInt64ToStrNoZero(field, operator string, condition int64) *Db {
+	if IsDefaultValue(condition) {
+		return db
+	}
+	return db.WhereInt64ToStr(field, operator, condition)
+}
+
+/**
 将int转换成字符串
 */
 func (db *Db) WhereIntToStr(field, operator string, condition int) *Db {
 	intStr := strconv.Itoa(condition)
 	return db.Where(field, operator, intStr)
+}
+
+/**
+将int转换成字符串:过滤零值
+*/
+func (db *Db) WhereIntToStrNoZero(field, operator string, condition int) *Db {
+	if IsDefaultValue(condition) {
+		return db
+	}
+	return db.WhereIntToStr(field, operator, condition)
 }
 
 /**
@@ -172,6 +226,17 @@ func (db *Db) WhereLike(field string, condition string) *Db {
 查询 like 条件，格式：WhereLike("name", "张")
 where 条件字符串
 */
+func (db *Db) WhereLikeNoZero(field string, condition string) *Db {
+	if IsDefaultValue(condition) {
+		return db
+	}
+	return db.WhereLike(field, condition)
+}
+
+/**
+查询 like 条件，格式：WhereLike("name", "张")
+where 条件字符串
+*/
 func (db *Db) WhereLikeLeft(field string, condition string) *Db {
 	condition = condition + "%"
 	db.where = append(db.where, where{
@@ -180,6 +245,17 @@ func (db *Db) WhereLikeLeft(field string, condition string) *Db {
 		condition: condition,
 	})
 	return db
+}
+
+/**
+查询 like 条件，格式：WhereLike("name", "张")
+where 条件字符串
+*/
+func (db *Db) WhereLikeLeftNoZero(field string, condition string) *Db {
+	if IsDefaultValue(condition) {
+		return db
+	}
+	return db.WhereLikeLeft(field, condition)
 }
 
 /**
@@ -194,6 +270,17 @@ func (db *Db) WhereNotLike(field string, condition string) *Db {
 		condition: condition,
 	})
 	return db
+}
+
+/**
+查询 not like 条件，格式：WhereNotLike("name", "张")
+where 条件字符串
+*/
+func (db *Db) WhereNotLikeNoZero(field string, condition string) *Db {
+	if IsDefaultValue(condition) {
+		return db
+	}
+	return db.WhereNotLike(field, condition)
 }
 
 /**

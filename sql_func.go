@@ -146,3 +146,24 @@ func (db *Db) clone() *Db {
 	*newDB = *db
 	return newDB
 }
+
+/**
+判断是否为0值
+*/
+func IsDefaultValue(obj interface{}) bool {
+	switch value := obj.(type) {
+	case int, int16, int32, int64:
+		if value == 0 {
+			return true
+		}
+	case string:
+		if value == "" {
+			return true
+		}
+	case float32, float64:
+		if value == 0. {
+			return true
+		}
+	}
+	return false
+}
