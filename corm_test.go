@@ -44,6 +44,32 @@ func init() {
 	retErr(err)
 }
 
+func TestFilterZero(t *testing.T) {
+	fmt.Println("-------------------查询零值-------------------")
+	data := make([]*Users, 0)
+	err = GetDb(masterDB).Tab("users").Select("name", "phone").Where("phone", "=", "").Get(func(rows *sql.Rows) {
+		user := new(Users)
+		_ = rows.Scan(&user.Name, &user.Phone)
+		data = append(data, user)
+	})
+	retErr(err)
+	for k, v := range data {
+		fmt.Println(k, v.Name, v.Phone)
+	}
+
+	fmt.Println("-------------------过滤零值-------------------")
+	data = make([]*Users, 0)
+	err = GetDb(masterDB).Tab("users").Select("name", "phone").WhereFZ("phone", "=", "").Get(func(rows *sql.Rows) {
+		user := new(Users)
+		_ = rows.Scan(&user.Name, &user.Phone)
+		data = append(data, user)
+	})
+	retErr(err)
+	for k, v := range data {
+		fmt.Println(k, v.Name, v.Phone)
+	}
+}
+
 func TestSelect(t *testing.T) {
 	fmt.Println("-------------------查询一条数据-------------------")
 	name, phone := "", ""
