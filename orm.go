@@ -82,7 +82,7 @@ field 查询字段
 operator 条件符号 >、<、=、<>、like、in 等
 condition 条件值
 */
-func (db *Db) WhereNoZero(field, operator string, condition interface{}) *Db {
+func (db *Db) WhereFZ(field, operator string, condition interface{}) *Db {
 	if IsDefaultValue(condition) {
 		return db
 	}
@@ -99,7 +99,7 @@ func (db *Db) WhereEqual(field string, condition interface{}) *Db {
 /*
 等于:过滤零值
 */
-func (db *Db) WhereEqualNoZero(field string, condition interface{}) *Db {
+func (db *Db) WhereEqualFZ(field string, condition interface{}) *Db {
 	if IsDefaultValue(condition) {
 		return db
 	}
@@ -124,7 +124,7 @@ func (db *Db) WhereStrToInt(field, operator string, condition string) *Db {
 /**
 将数字字符串转换成INT:过滤零值
 */
-func (db *Db) WhereStrToIntNoZero(field, operator string, condition string) *Db {
+func (db *Db) WhereStrToIntFZ(field, operator string, condition string) *Db {
 	if IsDefaultValue(condition) {
 		return db
 	}
@@ -142,7 +142,7 @@ func (db *Db) WhereInt64ToStr(field, operator string, condition int64) *Db {
 /**
 将int64转换成字符串:过滤零值
 */
-func (db *Db) WhereInt64ToStrNoZero(field, operator string, condition int64) *Db {
+func (db *Db) WhereInt64ToStrFZ(field, operator string, condition int64) *Db {
 	if IsDefaultValue(condition) {
 		return db
 	}
@@ -160,7 +160,7 @@ func (db *Db) WhereIntToStr(field, operator string, condition int) *Db {
 /**
 将int转换成字符串:过滤零值
 */
-func (db *Db) WhereIntToStrNoZero(field, operator string, condition int) *Db {
+func (db *Db) WhereIntToStrFZ(field, operator string, condition int) *Db {
 	if IsDefaultValue(condition) {
 		return db
 	}
@@ -226,7 +226,7 @@ func (db *Db) WhereLike(field string, condition string) *Db {
 查询 like 条件，格式：WhereLike("name", "张")
 where 条件字符串
 */
-func (db *Db) WhereLikeNoZero(field string, condition string) *Db {
+func (db *Db) WhereLikeFZ(field string, condition string) *Db {
 	if IsDefaultValue(condition) {
 		return db
 	}
@@ -251,7 +251,7 @@ func (db *Db) WhereLikeLeft(field string, condition string) *Db {
 查询 like 条件，格式：WhereLike("name", "张")
 where 条件字符串
 */
-func (db *Db) WhereLikeLeftNoZero(field string, condition string) *Db {
+func (db *Db) WhereLikeLeftFZ(field string, condition string) *Db {
 	if IsDefaultValue(condition) {
 		return db
 	}
@@ -276,7 +276,7 @@ func (db *Db) WhereNotLike(field string, condition string) *Db {
 查询 not like 条件，格式：WhereNotLike("name", "张")
 where 条件字符串
 */
-func (db *Db) WhereNotLikeNoZero(field string, condition string) *Db {
+func (db *Db) WhereNotLikeFZ(field string, condition string) *Db {
 	if IsDefaultValue(condition) {
 		return db
 	}

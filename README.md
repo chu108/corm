@@ -22,16 +22,23 @@ go get -u github.com/chu108/corm
     - Force 强制索引
 - where 条件
     - Where 注意：条件参数不能写字段名，如：where("table.money", ">", "table.total")，跟语言无关，SQL预编译问题
+    - WhereFZ 过滤条件零值
     - WhereEqual 等于
+    - WhereEqualFZ 过滤条件零值
     - WhereRaw 原生where条件
     - WhereIn
     - WhereNotIn
     - WhereLike
+    - WhereLikeFZ 过滤条件零值
     - WhereNotLike
+    - WhereNotLikeFZ 过滤条件零值
     - WhereBetween
     - WhereStrToInt
+    - WhereStrToIntFZ 过滤条件零值
     - WhereInt64ToStr
+    - WhereInt64ToStrFZ 过滤条件零值
     - WhereIntToStr
+    - WhereIntToStrFZ 过滤条件零值
 - 关联查询 Join
     - Join
     - LeftJoin
