@@ -181,8 +181,74 @@ func (db *Db) WhereRaw(where string) *Db {
 where 条件字符串
 */
 func (db *Db) WhereIn(field string, condition ...interface{}) *Db {
+	if len(condition) == 0 {
+		return db
+	}
 	if checkWhereIn(condition) {
 		db.pushErr(errors.New("WhereIn 参数类型错误"))
+	}
+	db.where = append(db.where, where{
+		field:          field,
+		operator:       IN,
+		conditionArray: condition,
+	})
+	return db
+}
+
+/**
+查询 In 条件，格式：WhereIn("name", "张")
+where 条件字符串
+*/
+func (db *Db) WhereInStr(field string, val ...string) *Db {
+	length := len(val)
+	if length == 0 {
+		return db
+	}
+	condition := make([]interface{}, 0, 5)
+	for i := 0; i < length; i++ {
+		condition = append(condition, val[i])
+	}
+	db.where = append(db.where, where{
+		field:          field,
+		operator:       IN,
+		conditionArray: condition,
+	})
+	return db
+}
+
+/**
+查询 In 条件，格式：WhereIn("name", "张")
+where 条件字符串
+*/
+func (db *Db) WhereInInt(field string, val ...int) *Db {
+	length := len(val)
+	if length == 0 {
+		return db
+	}
+	condition := make([]interface{}, 0, 5)
+	for i := 0; i < length; i++ {
+		condition = append(condition, val[i])
+	}
+	db.where = append(db.where, where{
+		field:          field,
+		operator:       IN,
+		conditionArray: condition,
+	})
+	return db
+}
+
+/**
+查询 In 条件，格式：WhereIn("name", "张")
+where 条件字符串
+*/
+func (db *Db) WhereInInt64(field string, val ...int64) *Db {
+	length := len(val)
+	if length == 0 {
+		return db
+	}
+	condition := make([]interface{}, 0, 5)
+	for i := 0; i < length; i++ {
+		condition = append(condition, val[i])
 	}
 	db.where = append(db.where, where{
 		field:          field,
