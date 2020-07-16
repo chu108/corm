@@ -89,6 +89,13 @@ func (db *Db) WhereFZ(field, operator string, condition interface{}) *Db {
 	return db.Where(field, operator, condition)
 }
 
+/**
+WhereFZ 别名
+*/
+func (db *Db) WhereNil(field, operator string, condition interface{}) *Db {
+	return db.WhereFZ(field, operator, condition)
+}
+
 /*
 等于
 */
@@ -104,6 +111,13 @@ func (db *Db) WhereEqualFZ(field string, condition interface{}) *Db {
 		return db
 	}
 	return db.WhereEqual(field, condition)
+}
+
+/**
+WhereEqualFZ 别名
+*/
+func (db *Db) WhereEqualNil(field string, condition interface{}) *Db {
+	return db.WhereEqualFZ(field, condition)
 }
 
 /**
@@ -132,6 +146,13 @@ func (db *Db) WhereStrToIntFZ(field, operator string, condition string) *Db {
 }
 
 /**
+WhereStrToIntFZ 别名
+*/
+func (db *Db) WhereStrToIntNil(field, operator string, condition string) *Db {
+	return db.WhereStrToIntFZ(field, operator, condition)
+}
+
+/**
 将int64转换成字符串
 */
 func (db *Db) WhereInt64ToStr(field, operator string, condition int64) *Db {
@@ -150,6 +171,13 @@ func (db *Db) WhereInt64ToStrFZ(field, operator string, condition int64) *Db {
 }
 
 /**
+WhereInt64ToStrFZ 别名
+*/
+func (db *Db) WhereInt64ToStrNil(field, operator string, condition int64) *Db {
+	return db.WhereInt64ToStrFZ(field, operator, condition)
+}
+
+/**
 将int转换成字符串
 */
 func (db *Db) WhereIntToStr(field, operator string, condition int) *Db {
@@ -165,6 +193,13 @@ func (db *Db) WhereIntToStrFZ(field, operator string, condition int) *Db {
 		return db
 	}
 	return db.WhereIntToStr(field, operator, condition)
+}
+
+/**
+WhereIntToStrFZ 别名
+*/
+func (db *Db) WhereIntToStrNil(field, operator string, condition int) *Db {
+	return db.WhereIntToStrFZ(field, operator, condition)
 }
 
 /**
@@ -300,6 +335,13 @@ func (db *Db) WhereLikeFZ(field string, condition string) *Db {
 }
 
 /**
+WhereLikeFZ 别名
+*/
+func (db *Db) WhereLikeNil(field string, condition string) *Db {
+	return db.WhereLikeFZ(field, condition)
+}
+
+/**
 查询 like 条件，格式：WhereLike("name", "张")
 where 条件字符串
 */
@@ -325,6 +367,13 @@ func (db *Db) WhereLikeLeftFZ(field string, condition string) *Db {
 }
 
 /**
+WhereLikeLeftFZ 别名
+*/
+func (db *Db) WhereLikeLeftNil(field string, condition string) *Db {
+	return db.WhereLikeLeftFZ(field, condition)
+}
+
+/**
 查询 not like 条件，格式：WhereNotLike("name", "张")
 where 条件字符串
 */
@@ -347,6 +396,13 @@ func (db *Db) WhereNotLikeFZ(field string, condition string) *Db {
 		return db
 	}
 	return db.WhereNotLike(field, condition)
+}
+
+/**
+WhereNotLikeFZ 别名
+*/
+func (db *Db) WhereNotLikeNil(field string, condition string) *Db {
+	return db.WhereNotLikeFZ(field, condition)
 }
 
 /**
