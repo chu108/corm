@@ -621,10 +621,11 @@ pageCount 每页记录数
 callable 回调函数
 */
 func (db *Db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64, error) {
-	db.offset = (page - 1) * pageCount
-	db.limit = pageCount
 	//总记录数
 	totalCount, err := db.clone().Count()
+	db.offset = (page - 1) * pageCount
+	db.limit = pageCount
+
 	if err != nil {
 		return 0, err
 	}
