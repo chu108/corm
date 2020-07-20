@@ -3,6 +3,7 @@ package corm
 import (
 	"database/sql"
 	"errors"
+	"math"
 	"strconv"
 	"strings"
 	"sync"
@@ -634,6 +635,22 @@ func (db *Db) GetPage(page, pageCount int, callable func(rows *sql.Rows)) (int64
 		return 0, err
 	}
 	return totalCount, nil
+}
+
+/**
+分页数据查询
+page 页数
+pageCount 每页记录数
+callable 回调函数
+*/
+func (db *Db) GetPageT(page, pageCount int, callable func(rows *sql.Rows)) (totalCount, totalPage int64, err error) {
+	//总记录数
+	totalCount, err = db.GetPage(page, pageCount, callable)
+	if err != nil {
+		return
+	}
+	totalPage = int64(math.Ceil(float64(totalCount) / float64(pageCount)))
+	return
 }
 
 /**
