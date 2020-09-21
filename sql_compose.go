@@ -255,7 +255,7 @@ func (db *Db) updateToStrAndArr() (string, []interface{}) {
 	var vals []interface{}
 
 	for k, v := range db.update {
-		keys = append(keys, k+" = ?")
+		keys = append(keys, "`"+k+"` = ?")
 		vals = append(vals, v)
 	}
 
