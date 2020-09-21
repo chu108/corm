@@ -243,7 +243,7 @@ func (db *Db) insertToStrAndArr() (string, []interface{}) {
 		vals = append(vals, v)
 	}
 
-	keysToStr := db.table + "(" + strings.Join(keys, ", ") + ")"
+	keysToStr := db.table + "(`" + strings.Join(keys, "`, `") + "`)"
 	keyValsToStr := " VALUES(" + strings.Join(keyVals, ", ") + ")"
 	insertStr := keysToStr + keyValsToStr
 
