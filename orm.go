@@ -616,6 +616,26 @@ func (db *Db) Get(callable func(rows *sql.Rows)) error {
 }
 
 /**
+查询多条数据
+callable 回调函数
+*/
+func (db *Db) Query(callable func(rows *sql.Rows) error) (err error) {
+	rows, err := db.query(db.whereToSql(), db.getWhereValue()...)
+	if errs(err) != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = callable(rows)
+		if err != nil {
+			return err
+		}
+	}
+	return
+}
+
+/**
 分页数据查询
 page 页数
 pageCount 每页记录数
